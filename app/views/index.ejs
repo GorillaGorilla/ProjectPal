@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:ng="http://angularjs.org">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+</head>
+<body>
+
+<br>
+
+<section ng-view> </section>
+
+<script type="text/javascript">
+    window.user = <%- user || 'null' %>;
+</script>
+
+<script type="text/javascript" src="/lib/angular/angular.js"></script>
+<script type="text/javascript" src="/lib/angular-resource/angular-resource.js"></script>
+<script type="text/javascript" src="/lib/angular-route/angular-route.js"></script>
+<script type="text/javascript" src="/articles/articles.client.module.js"></script>
+<script type="text/javascript" src="/articles/controllers/articles.client.controller.js"></script>
+<script type="text/javascript" src="/articles/services/articles.client.service.js"></script>
+<script type="text/javascript" src="/articles/config/articles.client.routes.js"></script>
+<script type="text/javascript" src="/blusers/blusers.client.module.js"></script>
+<script type="text/javascript" src="/blusers/services/authentication.client.service.js"></script>
+<script type="text/javascript" src="/example/example.client.module.js"></script>
+<script type="text/javascript" src="/example/config/example.client.routes.js"></script>
+<script type="text/javascript" src="/example/controllers/example.client.controller.js"></script>
+<script type="text/javascript" src="/blusers/controllers/users.client.controller.js"></script>
+<script type="text/javascript" src="/blusers/services/users.client.service.js"></script>
+<script type="text/javascript" src="/blusers/config/users.client.routes.js"></script>
+<script type="text/javascript" src="/application.js"></script>
+
+</body>
+</html>

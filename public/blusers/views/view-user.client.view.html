@@ -1,0 +1,11 @@
+<section data-ng-controller="UsersController" data-ng-init="findOne()">
+    <h1 data-ng-bind="user.fullName"></h1>
+    <div data-ng-show="authentication.user._id != user._id">
+        <br>
+        <button type="button"  ng-click="add()" >Add</button>
+    </div>
+    <small>
+        <em>Joined on </em>
+        <em data-ng-bind="user.created | date:'mediumDate'"></em>
+    </small>
+</section>
