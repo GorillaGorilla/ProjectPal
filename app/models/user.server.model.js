@@ -8,7 +8,11 @@ var mongoose = require('mongoose'),
 var UserSchema = new Schema({
     firstName: String,
     lastName: String,
-    friends: [{ type : String }],
+    //friends: [{
+    //    person: {type: Schema.ObjectID, ref: User},
+    //    status: {type: String,
+    //    default: 'Pending'}
+    //}],
     email: {
         type: String,
         match: [/.+\@.+\..+/, "Please fill a valid e-mail address"]
@@ -41,7 +45,8 @@ var UserSchema = new Schema({
         default: Date.now
     }
 });
-//UserSchema.add({friends: [{ type : Schema.ObjectId, ref: 'User' }]});
+UserSchema.add({friends: [{ type : Schema.ObjectId, ref: 'User' }]});
+UserSchema.add({pendingFriends: [{ type : Schema.ObjectId, ref: 'User' }]});
 
 UserSchema.virtual('fullName').get(function() {
     return this.firstName + ' ' + this.lastName;

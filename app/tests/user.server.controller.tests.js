@@ -11,6 +11,36 @@ var app = require('../../server'),
 agent = request.agent(app);
 var user;
 
+describe('testing signing up a new account', function(){
+    it('should create a new account and redirect to /',function(done){
+        user = new User({
+            firstName: 'Full',
+            lastName: 'Name',
+            displayName: 'Full Name',
+            email: 'test@test.com',
+            username: 'username',
+            password: 'password'
+        });
+        agent.post('/signup')
+            .send(user)
+            .expect(302)
+            .expect('Location','/')
+            .end(function(err,res){
+                should.not.exist(err);
+                done();
+            });
+    });
+
+    after(function(done) {
+        User.remove().exec();
+        request(app).get('/signout')
+            .end(function(err, res) {
+                if (err) console.log("logout error: " + err);
+                done();
+            });
+    });
+});
+
 describe('testing login session', function() {
     beforeEach(function(done) {
         user = new User({
@@ -25,32 +55,23 @@ describe('testing login session', function() {
             .send(user)
             .end(function(err,res){
                 if (err){console.log("signup error: " +err)}
-
-                done();
+                request(app).get('/signout')
+                    .end(function(err, res) {
+                        if (err) console.log("logout error: " + err);
+                        done();
+                    });
             });
-        //user.save(function () {
-        //    done();
-        //})
     });
 
-
-    it('Should create a session', function(done) {
-
-
+    it('Should login with the correct password', function(done) {
         agent.post('/signin')
             .send({ "username": "username", "password": "password" })
             .expect(302)
             .expect('Location','/')
             .end(function(err, res) {
                 should.not.exist(err);
-                //res.header['location'].should.include('/');
-                //res.should.have.property('status',200);
-                //if (err){console.log("res error: " + err)}
-                //console.log("res: " + res);
                 done();
             });
-
-
     });
 
     //it('Should return the current session', function(done) {
@@ -59,6 +80,16 @@ describe('testing login session', function() {
     //        done();
     //    });
     //});
+    it('Should fail to login with incorrect password', function(done) {
+        agent.post('/signin')
+            .send({ "username": "username", "password": "wrong" })
+            .expect('Location','/signin')
+            .end(function(err, res) {
+                should.not.exist(err);
+                done();
+            });
+    });
+
 
     afterEach(function(done) {
         User.remove().exec();
