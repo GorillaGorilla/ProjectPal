@@ -1,11 +1,11 @@
 <section data-ng-controller="FriendsController" ng-init="list()">
     <div data-ng-show="pendingFriends.length>0">
     <h1>Pending Friends</h1>
-    <li ng-repeat="friend in pendingFriends">
-        <a data-ng-href="#!api/friends/{{friend._id}}" data-ng-bind="friend.fullName"></a>
+    <li ng-repeat="pendingFriend in pendingFriends">
+        <a data-ng-href="#!api/friends/{{pendingFriend._id}}" data-ng-bind="pendingFriend.fullName"></a>
         <br>
-        <p>{{friend.username}}</p>
-        <button type="button" ng-click="accept(friend)">Accept Request</button>
+        <p>{{pendingFriend.username}}</p>
+        <button type="button" ng-click="accept(pendingFriend)">Accept Request</button>
     </li>
     </div>
     <h2>Friends</h2>

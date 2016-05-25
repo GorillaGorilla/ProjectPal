@@ -36,27 +36,52 @@ exports.accept = function(req,res){
     // user's pending list
     console.log("accept userId: " + req.body.id);
 
-    User.find().exec(function(err, friends) {
-        console.log("friends: " + friends + '\n');
+    req.user.friends.push(req.body.id);
+    var index = req.user.pendingFriends.indexOf(req.body.id);
+    console.log("index: " + index +'\n');
+    req.user.pendingFriends.splice(index);
+
+    User.findByIdAndUpdate(req.user.id, req.user, function(err, user){
+        if (err) {
+            console.log("findupdate error: " + err)
+            return res.send(err);
+        } else {
+            console.log("req.body: " + JSON.stringify(req.body));
+            console.log("req.friend: " + JSON.stringify(req.friend));
+            req.friend.friends.push(req.user.id);
+            User.findByIdAndUpdate(req.body.id, req.friend, function(err, user){
+                if (err) {
+                    console.log("findupdate error: " + err)
+                    return res.send(err);
+                } else {
+
+                    res.json(user);
+                }
+            });
+        }
     });
 
-    User.findOne({_id: req.user.id}).exec(function(err, user) {
-        if (err) {console.log(err);
-            res.send(err)}
-        console.log("findOne friend: " + user);
-        user.friends.push(req.body.id);
-        var index = user.pendingFriends.indexOf(req.body.id);
-        console.log("index: " + index +'\n');
-        user.pendingFriends.splice(index);
-        user.save(function(err){
-            User.findOne({_id: req.body.id}).exec(function(err, friend) {
-                friend.friends.push(req.user.id);
-                friend.save(function(err){
-                    res.json(friend);
-                });
-            });
-        });
-    });
+    //User.find().exec(function(err, friends) {
+    //    console.log("friends: " + friends + '\n');
+    //});
+    //
+    //User.findOne({_id: req.user.id}).exec(function(err, user) {
+    //    if (err) {console.log(err);
+    //        res.send(err)}
+    //    console.log("findOne friend: " + user);
+    //    user.friends.push(req.body.id);
+    //    var index = user.pendingFriends.indexOf(req.body.id);
+    //    console.log("index: " + index +'\n');
+    //    user.pendingFriends.splice(index);
+    //    user.save(function(err){
+    //        User.findOne({_id: req.body.id}).exec(function(err, friend) {
+    //            friend.friends.push(req.user.id);
+    //            friend.save(function(err){
+    //                res.json(friend);
+    //            });
+    //        });
+    //    });
+    //});
 };
 
 exports.read = function(req,res, id){
@@ -117,6 +142,17 @@ exports.listpending = function(req,res){
         });
 };
 
+exports.friendById = function(req, res, next, id){
+    console.log("friendById called");
+    User.findOne({_id: id}, function(err,user){
+        if (err) {
+            return next(err);
+        }else {
+            req.friend = user;
+            next();
+        }
+    });
+}
 
 exports.hasAuthorization = function(req, res, next){
 //    if the friendId exists in the user's friend list then go to next, otherwise

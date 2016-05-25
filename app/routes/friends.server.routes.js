@@ -13,9 +13,12 @@ module.exports = function(app) {
     app.route('/api/friends/:friendId')
         .get(users.requiresLogin, friends.read)
         .put(users.requiresLogin, friends.accept);
-    //app.param('friendID', friend.friendByID);
+
     app.route('/api/pendingfriends')
         .get(users.requiresLogin, friends.listpending)
         .put(users.requiresLogin, friends.accept)
         .delete(users.requiresLogin, friends.decline);
+    app.route('/api/pendingfriends/:friendId')
+        .put(users.requiresLogin, friends.accept);
+    app.param('friendId', friends.friendById);
 };

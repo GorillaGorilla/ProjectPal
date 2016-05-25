@@ -2,7 +2,7 @@
  * Created by GB115151 on 24/05/2016.
  */
 angular.module('friends').controller('FriendsController', ['$scope',
-    '$routeParams', '$location', 'Authentication', 'Friends', 'Pendingfriends',
+    '$routeParams', '$location', 'Authentication', 'Friends', 'PendingFriends',
     function($scope, $routeParams, $location, Authentication, Friends, Pendingfriends)
     {
         $scope.list = function(){
@@ -24,18 +24,15 @@ angular.module('friends').controller('FriendsController', ['$scope',
         $scope.findOne = function(){
         };
 
-        $scope.accept = function(account){
-            Friends.update(account, function(response) {
+        $scope.accept = function(pendingFriend){
+            pendingFriend.$update(function(response) {
                 console.log(response);
-                $location.path('friends');
+                $location.path('/');
             }, function(errorResponse) {
                 $scope.error = errorResponse.data.message;
             });
 
         };
-
-
-
 
         $scope.add  = function(){
 
