@@ -1,7 +1,7 @@
 /**
  * Created by GB115151 on 09/05/2016.
  */
-var friends = require('../../app/controllers/users.server.controller'),
+var friends = require('../../app/controllers/friends.server.controller'),
 users = require('../../app/controllers/users.server.controller');
 
 module.exports = function(app) {
@@ -10,7 +10,12 @@ module.exports = function(app) {
         .post(users.requiresLogin, friends.add)
         .put(users.requiresLogin, friends.accept)
         .delete(users.requiresLogin, friends.decline);
-    app.route('/api/friends/:friendsId')
-        .get(users.requiresLogin, friends.read);
+    app.route('/api/friends/:friendId')
+        .get(users.requiresLogin, friends.read)
+        .put(users.requiresLogin, friends.accept);
     //app.param('friendID', friend.friendByID);
+    app.route('/api/pendingfriends')
+        .get(users.requiresLogin, friends.listpending)
+        .put(users.requiresLogin, friends.accept)
+        .delete(users.requiresLogin, friends.decline);
 };

@@ -1,0 +1,7 @@
+<section data-ng-controller="FriendController" data-ng-init="findOne()">
+    <h1 data-ng-bind="friend.fullName"></h1>
+    <small>
+        <em>Joined on </em>
+        <em data-ng-bind="user.created | date:'mediumDate'"></em>
+    </small>
+</section>

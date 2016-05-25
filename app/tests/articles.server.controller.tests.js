@@ -52,7 +52,6 @@ describe('Articles Controller Unit Tests:', function() {
                 });
         });
         it('Should be able to get the specific article', function(done) {
-            console.log('/api/articles/' + article.id);
             request(app).get('/api/articles/' + article.id)
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)

@@ -9,6 +9,7 @@
         <ul>
             <li><a href="/#!/users"> User List</a> </li>
             <li><a href="/#!/articles">List Articles</a></li>
+            <li ng-show="authentication.user.pendingFriends.length > 0 || authentication.user.friends.length > 0"><a href="/#!/friends">Friends</a></li>
             <li><a href="/#!/articles/create">Create Article</a></li>
         </ul>
     </div>

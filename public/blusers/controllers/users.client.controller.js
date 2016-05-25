@@ -23,7 +23,7 @@ angular.module('users').controller('UsersController', ['$scope',
         };
         $scope.add = function(){
             var obj = {userID : $scope.authentication.user._id};
-            $scope.user.friends.push($scope.authentication.user._id);
+            $scope.user.pendingFriends.push($scope.authentication.user._id);
             console.log("friend pushed " + JSON.stringify($scope.user));  // has something in friend array
             $scope.user.$update(function() {
                 console.log("afterUpdate " + JSON.stringify($scope.user));  //no longer has anything in friend array...
@@ -31,6 +31,6 @@ angular.module('users').controller('UsersController', ['$scope',
             }, function(errorResponse) {
                 $scope.error = errorResponse.data.message;
             });
-        }
+        };
     }
 ]);

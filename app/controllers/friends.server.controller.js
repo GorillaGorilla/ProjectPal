@@ -1,20 +1,65 @@
 /**
  * Created by GB115151 on 09/05/2016.
  */
-var User = require('mongoose').model('User'),
-    passport = require('passport');
+var mongoose = require('mongoose'),
+    User = mongoose.model('User');
+
 
 exports.add = function(req, res) {
-    console.log("exports.add: " + JSON.stringify(req.body));
-    User.findById(req.body.id).exec(function(err, friend) {
-        if (err) return next(err);
-        friend.pendingFriend.push(req.user.__id);
-        res.json(friend);
+    //not actually needed... works with users update
+    //console.log("exports.add body: " + JSON.stringify(req.body));
+    //console.log("exports.add .id: " + req.user.id);
+    //req.body.pendingFriends.push(req.user.id); //works
+    //res.json(req.body);
+    //User.find().exec(function(err, friends) {
+    //    console.log("friends: " + friends);
+    //});
+    //
+    //User.findById(req.body.id).populate('username').exec(function(err, friend1) {
+    //    console.log("findbyid friend: " + friend1);
+    //});
+
+    User.findOne({_id: req.body.id}).exec(function(err, friend) {
+        if (err) {console.log(err);
+        res.send(err)}
+        //console.log("findOne friend: " + friend);
+        friend.pendingFriends.push(req.user.id);
+        friend.save(function(err){
+            res.json(friend);
+        });
     });
 
 };
 
 exports.accept = function(req,res){
+    // adds user to the friends friend array, and friend to the user's friend array. deleted friend from
+    // user's pending list
+    console.log("accept userId: " + req.body.id);
+
+    User.find().exec(function(err, friends) {
+        console.log("friends: " + friends + '\n');
+    });
+
+    User.findOne({_id: req.user.id}).exec(function(err, user) {
+        if (err) {console.log(err);
+            res.send(err)}
+        console.log("findOne friend: " + user);
+        user.friends.push(req.body.id);
+        var index = user.pendingFriends.indexOf(req.body.id);
+        console.log("index: " + index +'\n');
+        user.pendingFriends.splice(index);
+        user.save(function(err){
+            User.findOne({_id: req.body.id}).exec(function(err, friend) {
+                friend.friends.push(req.user.id);
+                friend.save(function(err){
+                    res.json(friend);
+                });
+            });
+        });
+    });
+};
+
+exports.read = function(req,res, id){
 
 };
 
@@ -23,24 +68,61 @@ exports.decline = function(req,res){
 };
 
 exports.list = function(req,res){
-    User.findById(req.body.id).populate('friends').exec(function(err, friends) {
+    // returns an object of 2 arrays, friends and pending friends
+    console.log("list called");
+    User.findById(req.user.id).populate('friends', 'username firstName lastName fullName email')
+        .populate('pendingFriends', 'username firstName lastName fullName email')
+        .exec(function(err, user) {
         if (err) {
-            return next(err);
+            console.log("list err: " + err);
+            res.send(err);
         }else {
-            friends.forEach(function(user) {
-                console.log("user: " + user);
+            console.log('user populated: ' + user);
+            var friends, pending;
+            friends = user.friends;
+            pending = user.pendingFriends;
+            pending.forEach(function(record){
+                record.pending = true;
             });
+            friends.forEach(function(record){
+                record.pending = false;
+            });
+            //var fl = user.friends || [];
+            //var obj = [];
+            //obj[0] = {friends: user.friends || [],
+            //pendingFriends: user.pendingFriends || []};
+            //console.log("obj: " + JSON.stringify(obj));
+            //res.json(obj);
+
+            //var fl = friends.concat(pending);
+            //console.log(fl);
             res.json(friends);
         }
     });
 
 };
 
+exports.listpending = function(req,res){
+    console.log("listPending called");
+
+    User.findById(req.user.id)
+        .populate('pendingFriends', 'username firstName lastName fullName email')
+        .exec(function(err, user) {
+            if (err) {
+                console.log("list err: " + err);
+                res.send(err);
+            } else {
+                res.json(user.pendingFriends);
+            }
+        });
+};
+
+
 exports.hasAuthorization = function(req, res, next){
 //    if the friendId exists in the user's friend list then go to next, otherwise
     var friendInList = false;
     friendInList = req.user.friends.some(function(friend){
-        return (friend._id === req.friend.__id);
+        return (friend._id === req.friend._id);
     });
     if (!friendInList){
         return res.status(403).send({

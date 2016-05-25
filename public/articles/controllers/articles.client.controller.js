@@ -18,7 +18,10 @@ angular.module('articles').controller('ArticlesController', ['$scope',
             });
         };
         $scope.find = function() {
-            $scope.articles = Articles.query();
+            var arts = [];
+            arts = Articles.query();
+            console.log("arts: " + arts);
+            $scope.articles = arts;
         };
         $scope.findOne = function() {
             $scope.article = Articles.get({
