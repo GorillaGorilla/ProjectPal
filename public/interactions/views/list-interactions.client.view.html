@@ -1,0 +1,19 @@
+<section data-ng-controller="InteractionsController" ng-init="list()">
+    <div>
+        <div ng-show="logs.length === 0"> Looks like you don't have any logs yet... get logging!</div>
+        <table id="t01" style="color:black">
+            <tr>
+                <th>Doer</th>
+                <th>Receiver</th>
+                <th>Description</th>
+                <th>Score</th>
+            </tr>
+            <tr ng-repeat="log in logs">
+                <td>{{log.instigator.username}}</td>
+                <td>{{log.target.username}}</td>
+                <td>{{log.description}}</td>
+                <td>{{log.level}}</td>
+            </tr>
+        </table>
+    </div>
+</section>

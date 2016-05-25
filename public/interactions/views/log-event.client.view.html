@@ -1,0 +1,33 @@
+<section data-ng-controller="InteractionsController" ng-init="listFriends()">
+    <div>
+        <p>Log Favour/Betrayal</p>
+        <form data-ng-submit="create()" novalidate>
+            <div>
+                <label for="level">Level</label>
+                <div>
+                    <select ng-model="level" id ="level" ng-options="x for x in levelRange"></select>
+                </div>
+            </div>
+            <div>
+                <label for="instigator">From</label>
+                <div>
+                    <select ng-model="instigator" id ="instigator" ng-options="x.username for x in friends"></select>
+                </div>
+            </div>
+
+            <div>
+                <label for="description">Content</label>
+                <div>
+                    <textarea data-ng-model="description" id="description" cols="30"
+                              rows="10" placeholder="what they did"></textarea>
+                </div>
+            </div>
+            <div>
+                <input type="submit">
+            </div>
+            <div data-ng-show="error">
+                <strong data-ng-bind="error"></strong>
+            </div>
+        </form>
+    </div>
+</section>

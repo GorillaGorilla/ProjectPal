@@ -42,6 +42,7 @@ module.exports = function() {
     require('../app/routes/users.server.routes.js')(app);
     require('../app/routes/articles.server.routes.js')(app);
     require('../app/routes/friends.server.routes.js')(app);
+    require('../app/routes/interactions.server.routes.js')(app);
 
     app.use(express.static('./public'));
 

@@ -34,6 +34,8 @@ angular.module('friends').controller('FriendsController', ['$scope',
 
         };
 
+
+
         $scope.add  = function(){
 
         };
