@@ -25,11 +25,13 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
                 console.log("err: " + errorResponse)
                 $scope.error = errorResponse.data.message;
             });
-        }
+        };
 
         $scope.list = function(){
-            $scope.logs = Interactions.query();
-        }
+            $scope.logs = Interactions.query({
+                friendId: $routeParams.friendId
+            });
+        };
 
         $scope.levelRange = [-5,-3,-1,0,1,3,5];
 

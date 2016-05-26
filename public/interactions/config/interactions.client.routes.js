@@ -8,6 +8,8 @@ angular.module('interactions').config(['$routeProvider',
         })
             .when('/interactions/create', {
             templateUrl: 'interactions/views/log-event.client.view.html'
+        }).when('/interactions/:friendId',{
+            templateUrl: 'interactions/views/friend-log.client.view.html'
         });
             //.when('/interactions/:articleId', {
         //    templateUrl: 'interactions/views/view-interaction.client.view.html'

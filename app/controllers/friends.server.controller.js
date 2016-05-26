@@ -7,23 +7,13 @@ var mongoose = require('mongoose'),
 
 exports.add = function(req, res) {
     //not actually needed... works with users update
-    //console.log("exports.add body: " + JSON.stringify(req.body));
-    //console.log("exports.add .id: " + req.user.id);
-    //req.body.pendingFriends.push(req.user.id); //works
-    //res.json(req.body);
-    //User.find().exec(function(err, friends) {
-    //    console.log("friends: " + friends);
-    //});
-    //
-    //User.findById(req.body.id).populate('username').exec(function(err, friend1) {
-    //    console.log("findbyid friend: " + friend1);
-    //});
 
     User.findOne({_id: req.body.id}).exec(function(err, friend) {
         if (err) {console.log(err);
         res.send(err)}
         //console.log("findOne friend: " + friend);
         friend.pendingFriends.push(req.user.id);
+        //using save will probably mess up passport/logging in... revisit if needed
         friend.save(function(err){
             res.json(friend);
         });
@@ -34,54 +24,26 @@ exports.add = function(req, res) {
 exports.accept = function(req,res){
     // adds user to the friends friend array, and friend to the user's friend array. deleted friend from
     // user's pending list
-    console.log("accept userId: " + req.body.id);
 
     req.user.friends.push(req.body.id);
     var index = req.user.pendingFriends.indexOf(req.body.id);
-    console.log("index: " + index +'\n');
     req.user.pendingFriends.splice(index);
 
     User.findByIdAndUpdate(req.user.id, req.user, function(err, user){
         if (err) {
-            console.log("findupdate error: " + err)
             return res.send(err);
         } else {
-            console.log("req.body: " + JSON.stringify(req.body));
-            console.log("req.friend: " + JSON.stringify(req.friend));
             req.friend.friends.push(req.user.id);
             User.findByIdAndUpdate(req.body.id, req.friend, function(err, user){
                 if (err) {
                     console.log("findupdate error: " + err)
                     return res.send(err);
                 } else {
-
                     res.json(user);
                 }
             });
         }
     });
-
-    //User.find().exec(function(err, friends) {
-    //    console.log("friends: " + friends + '\n');
-    //});
-    //
-    //User.findOne({_id: req.user.id}).exec(function(err, user) {
-    //    if (err) {console.log(err);
-    //        res.send(err)}
-    //    console.log("findOne friend: " + user);
-    //    user.friends.push(req.body.id);
-    //    var index = user.pendingFriends.indexOf(req.body.id);
-    //    console.log("index: " + index +'\n');
-    //    user.pendingFriends.splice(index);
-    //    user.save(function(err){
-    //        User.findOne({_id: req.body.id}).exec(function(err, friend) {
-    //            friend.friends.push(req.user.id);
-    //            friend.save(function(err){
-    //                res.json(friend);
-    //            });
-    //        });
-    //    });
-    //});
 };
 
 exports.read = function(req,res, id){

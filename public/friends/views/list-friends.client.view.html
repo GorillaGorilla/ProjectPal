@@ -11,6 +11,8 @@
     <h2>Friends</h2>
     <li ng-repeat="friend in friends">
         <a data-ng-href="#!api/friends/{{friend._id}}" data-ng-bind="friend.fullName"></a>
+        <a href="#!/interactions/{{friend._id}}">view log</a>
+        <!--<a href="/#!/interactions/create">Log New Event!</a>-->
         <br>
         <p>{{friend.username}}</p>
     </li>

@@ -3,6 +3,13 @@
  */
 var mongoose = require("mongoose"),
     Interaction = mongoose.model('Interaction');
+var relevantInteraction = function(req, log){
+    if(req.friend){
+        return (log.instigator.id === req.user.id && log.target.id === req.friend.id || log.target.id === req.user.id && log.instigator.id === req.friend.id)
+    }else{
+        return (log.instigator.id === req.user.id || log.target.id === req.user.id)
+    }
+};
 
 exports.create = function(req, res) {
     //console.log("create interaction body: " + JSON.stringify(req.body) + '\n');
@@ -36,8 +43,6 @@ var getErrorMessage = function(err) {
 };
 
 exports.list = function(req, res){
-    console.log("userID: " + req.user.id);
-
     Interaction.find()
         .populate('target','username firstName lastName fullName')
         .populate('instigator','username firstName lastName fullName')
@@ -46,15 +51,16 @@ exports.list = function(req, res){
             console.log("list err: " + err);
             return res.send(err);
         } else {
-            console.log("logs before filter: " + JSON.stringify(logs));
+            //console.log("logs before filter: " + JSON.stringify(logs));
             var logsfilt = logs.filter(function(log){
-                return (log.instigator.id === req.user.id || log.target.id === req.user.id)
+                return relevantInteraction(req, log);
+                //return (log.instigator.id === req.user.id || log.target.id === req.user.id)
             });
-            console.log("logs after filter: " + JSON.stringify(logs));
             res.json(logsfilt);
         }
     });
-}
+};
+
 
 
 
