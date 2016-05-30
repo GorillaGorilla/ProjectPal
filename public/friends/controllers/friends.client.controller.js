@@ -22,6 +22,9 @@ angular.module('friends').controller('FriendsController', ['$scope',
         };
 
         $scope.findOne = function(){
+            $scope.friend = Friends.get({
+                friendId: $routeParams.friendId
+            });
         };
 
         $scope.accept = function(pendingFriend){

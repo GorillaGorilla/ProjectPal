@@ -74,15 +74,6 @@ exports.list = function(req,res){
             friends.forEach(function(record){
                 record.pending = false;
             });
-            //var fl = user.friends || [];
-            //var obj = [];
-            //obj[0] = {friends: user.friends || [],
-            //pendingFriends: user.pendingFriends || []};
-            //console.log("obj: " + JSON.stringify(obj));
-            //res.json(obj);
-
-            //var fl = friends.concat(pending);
-            //console.log(fl);
             res.json(friends);
         }
     });
@@ -114,6 +105,17 @@ exports.friendById = function(req, res, next, id){
             next();
         }
     });
+};
+
+exports.hasFriendship = function(req,res,next){
+    if (req.user.friends.indexOf(req.friend.id) === -1){
+        return res.status(403).send({
+            message: 'User is not authorized'
+        });
+    }else {
+        next();
+    }
+
 }
 
 exports.hasAuthorization = function(req, res, next){

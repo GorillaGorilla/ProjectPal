@@ -8,7 +8,7 @@ angular.module('friends').config(['$routeProvider',
         }).when('/friends/:friendId', {
             templateUrl: 'friends/views/view-friend.client.view.html'
         }).when('/friends/:friendId/log', {
-            templateUrl: 'friends/views/logInteraction.client.view.html'
+            templateUrl: 'friends/views/log-friend.client.view.html'
         });
     }
 ]);

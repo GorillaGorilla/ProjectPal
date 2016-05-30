@@ -63,6 +63,28 @@ UserSchema.pre('save', function(next) {
     }
     next();
 });
+
+//UserSchema.methods.getScore = function(friendId){
+//    //not tested
+//    Interaction.find().exec(function(err, logs){
+//        if (err) {
+//            console.log("list err: " + err);
+//            return res.send(err);
+//        } else {
+//            var score = 0;
+//            //console.log("logs before filter: " + JSON.stringify(logs));
+//            var logsfilt = logs.filter(function(log){
+//                return relevantInteraction(req, log);
+//                //return (log.instigator.id === req.user.id || log.target.id === req.user.id)
+//            }).filter(function(log){
+//                return log.instigator === friendId;
+//            }).forEach(function(log){
+//                score += log.level;
+//            });
+//            return score;
+//        }
+//    });
+//};
 UserSchema.methods.hashPassword = function(password) {
     return crypto.pbkdf2Sync(password, this.salt, 10000,
         64).toString('base64');
@@ -70,8 +92,7 @@ UserSchema.methods.hashPassword = function(password) {
 UserSchema.methods.authenticate = function(password) {
     return this.password === this.hashPassword(password);
 };
-UserSchema.statics.findUniqueUsername = function(username, suffix,
-                                                 callback) {
+UserSchema.statics.findUniqueUsername = function(username, suffix, callback) {
     var _this = this;
     var possibleUsername = username + (suffix || '');
     _this.findOne({

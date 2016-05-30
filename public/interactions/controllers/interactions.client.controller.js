@@ -12,6 +12,9 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
             console.log("firends: " + JSON.stringify($scope.friends));
         };
 
+        $scope.personalScore = 0;
+        //$scope.friendScore = 0;
+
         $scope.create = function(){
             var interaction = new Interactions({
                 description: this.description,
@@ -28,7 +31,45 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
         };
 
         $scope.list = function(){
+            var getTotal = function(logs){
+                console.log("instigator: " + logs[0]);
+                console.log("user: " + $scope.authentication.user.id);
+                var sum = 0;
+                logs.filter(function(log){
+                    return log.instigator === $scope.authentication.user.id;
+                }).forEach(function(log){
+                    sum += log.level;
+                });
+                return sum;
+            };
+
+            $scope.personalScore = 0;
+
+            if($routeParams.friendId){
+                $scope.friendScore = 0;
+            }
+
             $scope.logs = Interactions.query({
+                friendId: $routeParams.friendId
+            }, function(){
+                $scope.logs.filter(function(log){
+                    return log.instigator.id === $scope.authentication.user.id;
+                }).forEach(function(log){
+                    $scope.personalScore += log.level;
+                });
+                if ($scope.friendScore === 0){
+                    $scope.logs.filter(function(log){
+                        return log.target.id === $scope.authentication.user.id;
+                    }).forEach(function(log){
+                        $scope.friendScore += log.level;
+                    });
+                };
+
+            });
+        };
+
+        $scope.findOne = function(){
+            $scope.friend = Friends.get({
                 friendId: $routeParams.friendId
             });
         };

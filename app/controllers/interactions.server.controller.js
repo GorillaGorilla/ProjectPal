@@ -63,7 +63,6 @@ exports.list = function(req, res){
 
 
 
-
 exports.interactionByID = function(req, res, next, id) {
     Interaction.findById(id).populate('creator', 'firstName lastName fullName')
         .populate('target', 'username firstName lastName fullName')
