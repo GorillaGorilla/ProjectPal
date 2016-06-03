@@ -14,6 +14,11 @@ module.exports = function(app) {
     //    .delete(users.requiresLogin, interactions.hasAuthorization, interactions.delete);
     app.route('/api/interactions/:friendId')
         .get(interactions.list);
+    app.route('/api/interactions/:friendId/show')
+        .get(interactions.listFriendLogs);
+    app.route('/api/interactions/:friendId/show/:friend2Id')
+        .get(interactions.listFriendLogs);
     app.param('interactionId', interactions.interactionByID);
-    app.param('friendId', friends.friendById);
+    app.param('friendId', friends.friendWfriendsById);
+    app.param('friend2Id', friends.friend2WfriendsById);
 };

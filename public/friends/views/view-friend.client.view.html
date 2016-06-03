@@ -1,7 +1,37 @@
-<section data-ng-controller="FriendController" data-ng-init="findOne()">
+<section data-ng-controller="FriendsController" data-ng-init="findOne()">
+    <div><a href="#!/">Home</a></div>
+    <br>
     <h1 data-ng-bind="friend.fullName"></h1>
     <small>
         <em>Joined on </em>
-        <em data-ng-bind="user.created | date:'mediumDate'"></em>
+        <em data-ng-bind="friend.created | date:'mediumDate'"></em>
     </small>
+
+
+
+    <a href="#!api/interactions/{{friend._id}}/show">View their Log</a>
+
+
+    <section data-ng-controller="InteractionsController" ng-init="friendViewer()">
+        <div>
+            <div ng-show="logs.length === 0"> Looks like you don't have any logs yet... get logging!</div>
+            <table id="t01" style="color:black">
+                <tr>
+                    <th>Doer</th>
+                    <th>Receiver</th>
+                    <th>Description</th>
+                    <th>Score</th>
+                    <th>Relationship</th>
+                </tr>
+                <tr ng-repeat="log in logs">
+                    <td>{{log.instigator.username}}</td>
+                    <td>{{log.target.username}}</td>
+                    <td>{{log.description}}</td>
+                    <td>{{log.level}}</td>
+                    <td><a href="#!/interactions/{{log.instigator.id}}/show/{{log.target.id}}">View relationship</a></td>
+                </tr>
+            </table>
+            <p>personal score: {{personalScore}}</p>
+        </div>
+    </section>
 </section>

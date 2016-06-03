@@ -31,20 +31,7 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
         };
 
         $scope.list = function(){
-            var getTotal = function(logs){
-                console.log("instigator: " + logs[0]);
-                console.log("user: " + $scope.authentication.user.id);
-                var sum = 0;
-                logs.filter(function(log){
-                    return log.instigator === $scope.authentication.user.id;
-                }).forEach(function(log){
-                    sum += log.level;
-                });
-                return sum;
-            };
-
             $scope.personalScore = 0;
-
             if($routeParams.friendId){
                 $scope.friendScore = 0;
             }
@@ -64,7 +51,30 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
                         $scope.friendScore += log.level;
                     });
                 };
+            });
+        };
 
+        $scope.friendViewer = function(){
+            $scope.personalScore = 0;
+            var reqObj = {friendId: $routeParams.friendId};
+            if($routeParams.friend2Id){
+                $scope.friendScore = 0;
+                reqObj = {friendId: $routeParams.friendId,
+                friend2Id: $routeParams.friend2Id};
+            }
+            $scope.logs = Interactions.viewFriend(reqObj, function(){
+                $scope.logs.filter(function(log){
+                    return log.instigator.id === $routeParams.friendId;
+                }).forEach(function(log){
+                    $scope.personalScore += log.level;
+                });
+                if ($scope.friendScore === 0){
+                    $scope.logs.filter(function(log){
+                        return log.target.id === $scope.authentication.user.id;
+                    }).forEach(function(log){
+                        $scope.friendScore += log.level;
+                    });
+                };
             });
         };
 

@@ -97,15 +97,44 @@ exports.listpending = function(req,res){
 
 exports.friendById = function(req, res, next, id){
     console.log("friendById called");
-    User.findOne({_id: id}, function(err,user){
+    User.findOne({_id: id}, function(err,friend){
         if (err) {
             return next(err);
         }else {
-            req.friend = user;
+            req.friend = friend;
             next();
         }
     });
 };
+
+exports.friendWfriendsById = function(req, res, next, id){
+    console.log("friendWfriendsById called");
+    User.findById(id)
+        .populate('friends','username')
+        .exec(function(err,friend){
+        if (err) {
+            return next(err);
+        }else {
+            req.friend = friend;
+            next();
+        }
+    });
+};
+
+exports.friend2WfriendsById = function(req, res, next, id){
+    console.log("friend2WfriendsById called");
+    User.findById(id)
+        .populate('friends','username')
+        .exec(function(err,friend){
+            if (err) {
+                return next(err);
+            }else {
+                req.friend2 = friend;
+                next();
+            }
+        });
+};
+
 
 exports.hasFriendship = function(req,res,next){
     if (req.user.friends.indexOf(req.friend.id) === -1){
@@ -116,7 +145,7 @@ exports.hasFriendship = function(req,res,next){
         next();
     }
 
-}
+};
 
 exports.hasAuthorization = function(req, res, next){
 //    if the friendId exists in the user's friend list then go to next, otherwise

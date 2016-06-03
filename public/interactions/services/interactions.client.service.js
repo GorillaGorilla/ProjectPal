@@ -8,6 +8,13 @@ angular.module('interactions').factory('Interactions', ['$resource',
         }, {
             update: {
                 method: 'PUT'
+            },
+            viewFriend: {
+                method: 'GET',
+                url: 'api/interactions/:friendId/show/:friend2Id',
+                params: {friendId: '@_id',
+                    friend2Id: '@_id'},
+                isArray: true
             }
         });
     }]);
