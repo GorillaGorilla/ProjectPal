@@ -1,21 +1,13 @@
 <section data-ng-controller="InteractionsController" ng-init="findOne()">
     <div>
-        <p>Log Favour/Betrayal</p>
-        <form data-ng-submit="create()" novalidate>
+        <p>Log Favour/Betrayal with {{friend.username}}</p>
+        <form data-ng-submit="create(friend)" novalidate>
             <div>
                 <label for="level">Level</label>
                 <div>
                     <select ng-model="level" id ="level" ng-options="x for x in levelRange"></select>
                 </div>
             </div>
-            <div>
-                <label for="instigator">From</label>
-                <p>{{friend.username}}</p>
-                <div ng-show="false">
-                    <input type="text" data-ng-model="instigator" id="instigator" required>
-                </div>
-            </div>
-
             <div>
                 <label for="description">Content</label>
                 <div>

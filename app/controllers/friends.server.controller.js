@@ -46,8 +46,8 @@ exports.accept = function(req,res){
     });
 };
 
-exports.read = function(req,res, id){
-
+exports.read = function(req,res){
+    res.json(req.friend);
 };
 
 exports.decline = function(req,res){
@@ -64,7 +64,6 @@ exports.list = function(req,res){
             console.log("list err: " + err);
             res.send(err);
         }else {
-            console.log('user populated: ' + user);
             var friends, pending;
             friends = user.friends;
             pending = user.pendingFriends;
@@ -81,8 +80,6 @@ exports.list = function(req,res){
 };
 
 exports.listpending = function(req,res){
-    console.log("listPending called");
-
     User.findById(req.user.id)
         .populate('pendingFriends', 'username firstName lastName fullName email')
         .exec(function(err, user) {

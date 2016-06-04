@@ -15,13 +15,23 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
         $scope.personalScore = 0;
         //$scope.friendScore = 0;
 
-        $scope.create = function(){
-            var interaction = new Interactions({
-                description: this.description,
-                level: this.level,
-                instigator: this.instigator._id,
-                target: $scope.authentication.user._id
-            });
+        $scope.create = function(friend){
+            var interObj;
+            if (friend){
+                interObj = {
+                    description: this.description,
+                    level: this.level,
+                    instigator: friend._id,
+                    target: $scope.authentication.user._id};
+            }else{
+                interObj = {
+                    description: this.description,
+                    level: this.level,
+                    instigator: this.instigator._id,
+                    target: $scope.authentication.user._id};
+            }
+
+            var interaction = new Interactions(interObj);
             interaction.$save(function(response) {
                 $location.path('/interactions');
             }, function(errorResponse) {
