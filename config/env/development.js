@@ -3,6 +3,7 @@
  */
 module.exports = {
     // Development configuration options
-    db: 'mongodb://localhost/mean-book',
-    sessionSecret: 'developmentSessionSecret'
-}
+    sessionSecret: "1234",
+    db: "mongodb://ec2-52-50-135-247.eu-west-1.compute.amazonaws.com/projectpal"
+};
+
