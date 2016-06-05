@@ -94,7 +94,20 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
             });
         };
 
-        $scope.levelRange = [-5,-3,-1,0,1,3,5];
+        $scope.getScore = function(){
+            var reqObj = {friendId: $routeParams.friendId};
+            if($routeParams.friend2Id){
+                $scope.friendScore = 0;
+                reqObj = {friendId: $routeParams.friendId,
+                    friend2Id: $routeParams.friend2Id};
+            }
+
+            $scope.stats = Interactions.seeScores(reqObj, function(res){
+                console.log("res: " + res);
+            });
+        };
+
+        $scope.levelRange = [-5,-3,-1,1,3,5];
 
 
     }

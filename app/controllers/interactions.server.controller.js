@@ -23,9 +23,6 @@ exports.create = function(req, res) {
 
     var interaction = new Interaction(req.body);
     interaction.creator = req.user;
-
-    //console.log("interactions: " + interaction);
-
     interaction.save(function(err) {
         if (err) {
             console.log("error: " + err);
@@ -115,21 +112,21 @@ exports.getScore = function(req, res){
             return res.send(err);
         } else {
             var logsFilt = logs.filter(function(log){
-                return relevantInteraction(req, log);
+                return relevantInteraction(req.user, log);
             });
             var userBalance = 0;
-            logsFilt.filter(function(log){
+            userbalance = logsFilt.filter(function(log){
                 return (log.instigator.id === req.user.id);
-            }).forEach(function(log){
-                userBalance += log.score;
+            }).reduce(function(a, b){
+                return a + b;
             });
 
             var friendBalance = 0;
-            logsFilt.filter(function(log){
-                return (log.instigator.id === req.friend.id);
-            }).forEach(function(log){
-                friendBalance += log.score;
-            });
+            //logsFilt.filter(function(log){
+            //    return (log.instigator.id === req.friend.id);
+            //}).forEach(function(log){
+            //    friendBalance += log.score;
+            //});
             res.json({
                 userBalance: userBalance,
                 friendbalance: friendBalance

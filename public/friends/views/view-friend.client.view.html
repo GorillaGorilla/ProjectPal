@@ -7,11 +7,6 @@
         <em data-ng-bind="friend.created | date:'mediumDate'"></em>
     </small>
 
-
-
-    <a href="#!api/interactions/{{friend._id}}/show">View their Log</a>
-
-
     <section data-ng-controller="InteractionsController" ng-init="friendViewer()">
         <div>
             <div ng-show="logs.length === 0"> Looks like you don't have any logs yet... get logging!</div>
