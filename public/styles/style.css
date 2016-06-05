@@ -1,13 +1,26 @@
 body {
-    background-color: #d0e4fe;
+    font-family: "Cambria";
+    font-size: 20px;
 }
 
 h1 {
     color: orange;
-    text-align: center;
+    text-align: left;
 }
 
 p {
-    font-family: "Times New Roman";
+    font-family: "Cambria";
     font-size: 20px;
+}
+
+th, td {
+    border-bottom: 1px solid #ddd;
+}
+
+table {
+
+}
+
+button {
+    color: #00b3ef;
 }
