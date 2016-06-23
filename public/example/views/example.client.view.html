@@ -10,7 +10,7 @@
         <section data-ng-controller="InteractionsController" ng-init="list()">
             <div>
                 <div ng-show="logs.length === 0"> Looks like you don't have any logs yet... get logging!</div>
-                <table id="t01" style="color:black">
+                <table ng-show="logs.length !== 0" >
                     <tr>
                         <th>Doer</th>
                         <th>Receiver</th>
@@ -18,13 +18,19 @@
                         <th>Score</th>
                     </tr>
                     <tr ng-repeat="log in logs">
-                        <td>{{log.instigator.username}}</td>
+                        <div>
+                        <td >{{log.instigator.username}}</td>
                         <td>{{log.target.username}}</td>
-                        <td>{{log.description}}</td>
+                        <td ng-click="openFriendLink(log)" >{{log.description}}</td>
                         <td>{{log.level}}</td>
+                        </div>
                     </tr>
                 </table>
                 <p>Personal total: {{personalScore}}</p>
+
+            </div>
+            <div ng-init="getScore()">
+                <p>stats {{stats.userBalance}}</p>
             </div>
         </section>
 

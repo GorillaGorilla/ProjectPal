@@ -95,7 +95,14 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
         };
 
         $scope.getScore = function(){
-            var reqObj = {friendId: $routeParams.friendId};
+
+
+            var reqObj = {};
+            if($routeParams.friendId){
+                $scope.friendScore = 0;
+                reqObj = {friendId: $routeParams.friendId};;
+            }
+
             if($routeParams.friend2Id){
                 $scope.friendScore = 0;
                 reqObj = {friendId: $routeParams.friendId,
@@ -103,12 +110,17 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
             }
 
             $scope.stats = Interactions.seeScores(reqObj, function(res){
-                console.log("res: " + res);
+                console.log("res: " + JSON.stringify(res));
+                $scope.stats = res;
             });
         };
 
         $scope.levelRange = [-5,-3,-1,1,3,5];
 
+        $scope.openFriendLink = function(log){
+            console.log('openFriendLink clicked');
+            $location.path('/interactions/' + log.instigator.id + '/show/' + log.target.id );
+        };
 
     }
 ]);

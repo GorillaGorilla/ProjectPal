@@ -18,7 +18,7 @@ angular.module('interactions').factory('Interactions', ['$resource',
             },
             seeScores: {
                 method: 'GET',
-                url: 'api/interactions/score/:friendId/show/:friend2Id',
+                url: 'api/interactions/score/stats/:friendId/:friend2Id',
                 params: {friendId: '@_id',
                     friend2Id: '@_id'},
                 isArray: false
