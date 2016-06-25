@@ -3,7 +3,7 @@
     <p>This is the template you are looking for.</p>
     <div>
         <div ng-show="logs.length === 0"> Looks like you don't have any logs yet... get logging!</div>
-        <table >
+        <table class="relationshipTable">
             <tr>
                 <th>Doer</th>
                 <th>Receiver</th>
@@ -17,6 +17,10 @@
                 <td>{{log.level}}</td>
             </tr>
         </table>
-        <p>personal score: {{personalScore}}</p>
+        <div ng-init="getScore()">
+            <h>Stats</h>
+            <p>Personal score: {{stats.userBalance}}</p>
+            <p>Friend score: {{stats.friendBalance}}</p>
+        </div>
     </div>
 </section>
