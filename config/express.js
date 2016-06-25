@@ -14,7 +14,10 @@ var config = require('./config'),
 module.exports = function() {
     var app = express();
 
+
     if (process.env.NODE_ENV === 'development'){
+
+
         app.use(morgan('dev'));
     }else if (process.env.NODE_ENV === 'production') {
         app.use(compress());
@@ -45,6 +48,8 @@ module.exports = function() {
     require('../app/routes/interactions.server.routes.js')(app);
 
     app.use(express.static('./public'));
+
+
 
     return app;
 };

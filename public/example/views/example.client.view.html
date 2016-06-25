@@ -18,17 +18,15 @@
                     <div ng-show="logs.length === 0"> Looks like you don't have any logs yet... get logging!</div>
                     <table ng-show="logs.length !== 0" >
                         <tr>
-                            <th>Doer</th>
-                            <th>Receiver</th>
-                            <th>Description</th>
-                            <th>Score</th>
+                            <th><div class="internalCell">Event</div></th>
+                            <th><div class="internalCell">Description</div></th>
+                            <th> <div class="internalCell">Score</div></th>
                         </tr>
                         <tr ng-repeat="log in logs">
                             <div>
-                                <td >{{log.instigator.username}}</td>
-                                <td>{{log.target.username}}</td>
+                                <td >{{log.instigator.username}} did {{log.target.username}} a favour for {{log.level}}!</td>
                                 <td ng-click="openFriendLink(log)" >{{log.description}}</td>
-                                <td>{{log.level}}</td>
+                                <td>  {{log.level}}</td>
                             </div>
                         </tr>
                     </table>

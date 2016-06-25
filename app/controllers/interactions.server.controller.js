@@ -98,10 +98,6 @@ exports.list = function(req, res){
 
 exports.listFriendLogs = function(req, res){
     console.log("list friend log called");
-    console.log("person1: " + person1.username);
-    if (person2){
-        console.log("person2: " + person2.username);
-    }
     Interaction.find()
         .populate('target','username firstName lastName fullName')
         .populate('instigator','username firstName lastName fullName')
@@ -132,7 +128,7 @@ exports.getScore = function(req, res){
             console.log("list err: " + err);
             return res.send(err);
         } else {
-            var person1 = (!req.friend2) ? req.user : rq.friend;
+            var person1 = (!req.friend2) ? req.user : req.friend;
             var person2 = req.friend2 || req.friend;
 
             var logsFilt = RELEVANCE.filterForRelevance(logs, person1, person2);
@@ -140,9 +136,7 @@ exports.getScore = function(req, res){
             var friendBalance = 0;
             console.log("logs filt1: " + logsFilt)
 
-            logsFilt.filter(function(log){
-                return (log.instigator.id === req.user.id);
-            })
+            logsFilt
                 .forEach(function(a){
                     if (a.instigator.id === req.user.id){
                         userBalance = userBalance + a.level;
@@ -164,7 +158,7 @@ exports.getScore = function(req, res){
             //});
             res.json({
                 userBalance: userBalance,
-                friendbalance: friendBalance
+                friendBalance: friendBalance
             });
         }
     });
