@@ -14,7 +14,14 @@ p {
 }
 
 th, td {
+
+
     border-bottom: 1px solid #ddd;
+}
+
+.internalCell {
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 table {

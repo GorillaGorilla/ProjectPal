@@ -3,13 +3,45 @@
  */
 var mongoose = require("mongoose"),
     Interaction = mongoose.model('Interaction');
-var relevantInteraction = function(person1, person2, log){
-    if(!!person2){
-        return (log.instigator.id === person1.id && log.target.id === person2.id || log.target.id === person1.id && log.instigator.id === person2.id)
-    }else{
-        return (log.instigator.id === person1.id || log.target.id === person1.id)
+
+var RELEVANCE = {};
+
+var testLogRelevance = function(){
+    var args = Array.prototype.slice.call(arguments);
+    //console.log("args: " + args + '\n' + '-------');
+    var oneWay = function(){
+        return (log.instigator.id === person1.id && log.target.id === person2.id);
+    };
+    var inverseWay = function(){
+        return (log.target.id === person1.id && log.instigator.id === person2.id);
+    };
+
+    if (args.length === 3){
+        var log = args[2];
+        var person1 = args[0];
+        var person2 = args[1];
+        return (oneWay()|| inverseWay())
+    }else if (args.length ===2 ){
+        return (args[1].instigator.id === args[0].id || args[1].target.id === args[0].id)
     }
 };
+
+RELEVANCE.filterForRelevance = function(logs, person1, person2){
+
+
+    var result = logs.filter(function(log){
+        var args  = [];
+        args.push(person1);
+        if (person2){args.push(person2)}
+        args.push(log);
+        return testLogRelevance.apply(null, args);
+    });
+    return result;
+};
+
+
+
+
 
 // make it a generic function, with first person, 2nd person. Then have the logic if user only, then user = first person.
 // if friend then user and friend.
@@ -23,9 +55,6 @@ exports.create = function(req, res) {
 
     var interaction = new Interaction(req.body);
     interaction.creator = req.user;
-
-    //console.log("interactions: " + interaction);
-
     interaction.save(function(err) {
         if (err) {
             console.log("error: " + err);
@@ -51,10 +80,7 @@ var getErrorMessage = function(err) {
 
 exports.list = function(req, res){
     console.log("list called");
-    var person1;
-    var person2;
-    person1 = req.user;
-    person2 = req.friend || null;
+
     Interaction.find()
         .populate('target','username firstName lastName fullName')
         .populate('instigator','username firstName lastName fullName')
@@ -64,9 +90,7 @@ exports.list = function(req, res){
             return res.send(err);
         } else {
             //console.log("logs before filter: " + JSON.stringify(logs));
-            var logsfilt = logs.filter(function(log){
-                return relevantInteraction(person1, person2, log);
-            });
+            var logsfilt = RELEVANCE.filterForRelevance(logs, req.user, req.friend);
             res.json(logsfilt);
         }
     });
@@ -74,17 +98,6 @@ exports.list = function(req, res){
 
 exports.listFriendLogs = function(req, res){
     console.log("list friend log called");
-
-    var person1;
-    var person2;
-
-    person1 = req.friend;
-    person2 = req.friend2 || null;
-    console.log("person1: " + person1.username);
-    if (person2){
-        console.log("person2: " + person2.username);
-    }
-
     Interaction.find()
         .populate('target','username firstName lastName fullName')
         .populate('instigator','username firstName lastName fullName')
@@ -94,45 +107,58 @@ exports.listFriendLogs = function(req, res){
                 return res.send(err);
             } else {
                 //console.log("logs before filter: " + JSON.stringify(logs));
-                var logsfilt = logs.filter(function(log){
-                    return relevantInteraction(person1, person2, log);
-                    //return (log.instigator.id === req.user.id || log.target.id === req.user.id)
-                }).map(function(log){
-                    // if req.user.friends !contains then
-                    log.instigator = 'mystery';
-                    log.target = 'mystery';
-                    return log;
-                });
+                var logsfilt = RELEVANCE.filterForRelevance(logs, req.friend, req.friend2);
+                //    .map(function(log){
+                //    // if req.user.friends !contains then
+                //    log.instigator = 'mystery';
+                //    log.target = 'mystery';
+                //    return log;
+                //});
                 res.json(logsfilt);
             }
         });
 };
 
 exports.getScore = function(req, res){
-    Interaction.find().exec(function(err,logs){
+    Interaction.find()
+        .populate('target','username firstName lastName fullName')
+        .populate('instigator','username firstName lastName fullName')
+        .exec(function(err,logs){
         if (err) {
             console.log("list err: " + err);
             return res.send(err);
         } else {
-            var logsFilt = logs.filter(function(log){
-                return relevantInteraction(req, log);
-            });
+            var person1 = (!req.friend2) ? req.user : req.friend;
+            var person2 = req.friend2 || req.friend;
+
+            var logsFilt = RELEVANCE.filterForRelevance(logs, person1, person2);
             var userBalance = 0;
-            logsFilt.filter(function(log){
-                return (log.instigator.id === req.user.id);
-            }).forEach(function(log){
-                userBalance += log.score;
+            var friendBalance = 0;
+            console.log("logs filt1: " + logsFilt)
+
+            logsFilt
+                .forEach(function(a){
+                    if (a.instigator.id === req.user.id){
+                        userBalance = userBalance + a.level;
+                    }else{
+                        friendBalance += a.level;
+                    }
+
             });
 
-            var friendBalance = 0;
-            logsFilt.filter(function(log){
-                return (log.instigator.id === req.friend.id);
-            }).forEach(function(log){
-                friendBalance += log.score;
-            });
+            //    .reduce(function(a, b){
+            //    return a.level + b.level;
+            //});
+
+
+            //logsFilt.filter(function(log){
+            //    return (log.instigator.id === req.friend.id);
+            //}).forEach(function(log){
+            //    friendBalance += log.score;
+            //});
             res.json({
                 userBalance: userBalance,
-                friendbalance: friendBalance
+                friendBalance: friendBalance
             });
         }
     });

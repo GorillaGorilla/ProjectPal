@@ -9,11 +9,8 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
         $scope.listFriends = function(){
 
             $scope.friends = Friends.query();
-            console.log("firends: " + JSON.stringify($scope.friends));
+            console.log("friends: " + JSON.stringify($scope.friends));
         };
-
-        $scope.personalScore = 0;
-        //$scope.friendScore = 0;
 
         $scope.create = function(friend){
             var interObj;
@@ -41,26 +38,8 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
         };
 
         $scope.list = function(){
-            $scope.personalScore = 0;
-            if($routeParams.friendId){
-                $scope.friendScore = 0;
-            }
-
             $scope.logs = Interactions.query({
                 friendId: $routeParams.friendId
-            }, function(){
-                $scope.logs.filter(function(log){
-                    return log.instigator.id === $scope.authentication.user.id;
-                }).forEach(function(log){
-                    $scope.personalScore += log.level;
-                });
-                if ($scope.friendScore === 0){
-                    $scope.logs.filter(function(log){
-                        return log.target.id === $scope.authentication.user.id;
-                    }).forEach(function(log){
-                        $scope.friendScore += log.level;
-                    });
-                };
             });
         };
 
@@ -72,20 +51,7 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
                 reqObj = {friendId: $routeParams.friendId,
                 friend2Id: $routeParams.friend2Id};
             }
-            $scope.logs = Interactions.viewFriend(reqObj, function(){
-                $scope.logs.filter(function(log){
-                    return log.instigator.id === $routeParams.friendId;
-                }).forEach(function(log){
-                    $scope.personalScore += log.level;
-                });
-                if ($scope.friendScore === 0){
-                    $scope.logs.filter(function(log){
-                        return log.target.id === $scope.authentication.user.id;
-                    }).forEach(function(log){
-                        $scope.friendScore += log.level;
-                    });
-                };
-            });
+            $scope.logs = Interactions.viewFriend(reqObj);
         };
 
         $scope.findOne = function(){
@@ -94,8 +60,31 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
             });
         };
 
-        $scope.levelRange = [-5,-3,-1,0,1,3,5];
+        $scope.getScore = function(){
 
+
+            var reqObj = {};
+            if($routeParams.friendId){
+                reqObj = {friendId: $routeParams.friendId};;
+            }
+
+            if($routeParams.friend2Id){
+                reqObj = {friendId: $routeParams.friendId,
+                    friend2Id: $routeParams.friend2Id};
+            }
+
+            $scope.stats = Interactions.seeScores(reqObj, function(res){
+                console.log("res: " + JSON.stringify(res));
+                $scope.stats = res;
+            });
+        };
+
+        $scope.levelRange = [-5,-3,-1,1,3,5];
+
+        $scope.openFriendLink = function(log){
+            console.log('openFriendLink clicked');
+            $location.path('/interactions/' + log.instigator.id + '/show/' + log.target.id );
+        };
 
     }
 ]);

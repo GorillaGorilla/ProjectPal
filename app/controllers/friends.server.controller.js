@@ -24,8 +24,9 @@ exports.add = function(req, res) {
 exports.accept = function(req,res){
     // adds user to the friends friend array, and friend to the user's friend array. deleted friend from
     // user's pending list
-
-    req.user.friends.push(req.body.id);
+    if (req.user.friends.indexOf(req.body.id)===-1){
+        req.user.friends.push(req.body.id);
+    }
     var index = req.user.pendingFriends.indexOf(req.body.id);
     req.user.pendingFriends.splice(index);
 
@@ -66,13 +67,6 @@ exports.list = function(req,res){
         }else {
             var friends, pending;
             friends = user.friends;
-            pending = user.pendingFriends;
-            pending.forEach(function(record){
-                record.pending = true;
-            });
-            friends.forEach(function(record){
-                record.pending = false;
-            });
             res.json(friends);
         }
     });

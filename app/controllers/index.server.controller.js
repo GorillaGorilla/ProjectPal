@@ -3,7 +3,7 @@
  */
 exports.render = function(req, res){
     res.render('index', {
-        title: 'Pal Analyst',
+        title: 'Hello World',
         user: JSON.stringify(req.user)
     });
 };
