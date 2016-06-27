@@ -120,6 +120,7 @@ exports.listFriendLogs = function(req, res){
 };
 
 exports.getScore = function(req, res){
+    console.log("getScore called");
     Interaction.find()
         .populate('target','username firstName lastName fullName')
         .populate('instigator','username firstName lastName fullName')
