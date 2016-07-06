@@ -5,6 +5,7 @@ angular.module('friends').controller('FriendsController', ['$scope',
     '$routeParams', '$location', 'Authentication', 'Friends', 'PendingFriends',
     function($scope, $routeParams, $location, Authentication, Friends, Pendingfriends)
     {
+        $scope.authentication = Authentication;
         $scope.list = function(){
             var obj = [];
             //obj = Friends.query();
@@ -39,7 +40,19 @@ angular.module('friends').controller('FriendsController', ['$scope',
 
 
 
-        $scope.add  = function(){
+        $scope.add = function(user, friend){
+            var user = user || $scope.authentication.user
+            if (friend.pendingFriends.indexOf(user._id) === -1){
+                friend.pendingFriends.push(user._id);
+                console.log("friend pushed " + JSON.stringify(friend));  // has something in friend array
+                friend.$update(function() {
+                    console.log("afterUpdate " + JSON.stringify(friend));  //no longer has anything in friend array...
+                    $location.path('/');
+                }, function(errorResponse) {
+                    $scope.error = errorResponse.data.message;
+                });
+            };
+
 
         };
 
