@@ -4,15 +4,23 @@
         <a href="/signin">Signin</a>
     </div>
     <div data-ng-show="authentication.user">
+        <div class="nav" >
+            <ul class="pull-left"><li><a href="#!/">Home</a></li></ul>
+            <ul ng-show="authentication.user" class="pull-right">
+                <li><a href="/#!/users"> User List</a> </li>
+                <li><a href="/#!/interactions/create">Log New Event!</a></li>
+                <li ng-show="authentication.user.pendingFriends.length > 0 || authentication.user.friends.length > 0">
+                    <a href="/#!/friends" ng-class="{notify:[authentication.user.pendingFriends.length > 0]}">Friends</a></li>
+                <li><a href="/signout">Signout</a></li>
+            </ul>
+        </div>
         <h1>Hello <span data-ng-bind="authentication.user.fullName"></span></h1>
-        <a href="/signout">Signout</a>
-
 
         <section data-ng-controller="InteractionsController" ng-init="list()">
             <div ng-init="getScore()">
                 <p>Personal total: {{stats.userBalance}}</p>
             </div>
-
+            <div class="container">
             <div class="row">
                 <div class="col-xs-12 col-md-8">
                     <div ng-show="logs.length === 0"> Looks like you don't have any logs yet... get logging!</div>
@@ -33,13 +41,8 @@
 
                 </div>
             </div>
+            </div>
         </section>
-
-        <ul>
-            <li><a href="/#!/users"> User List</a> </li>
-            <li><a href="/#!/interactions/create">Log New Event!</a></li>
-            <li ng-show="authentication.user.pendingFriends.length > 0 || authentication.user.friends.length > 0"><a href="/#!/friends">Friends</a></li>
-        </ul>
 
 
     </div>

@@ -40,7 +40,7 @@ angular.module('friends').controller('FriendsController', ['$scope',
 
 
 
-        $scope.add  = function(user, friend){
+        $scope.add = function(user, friend){
             var user = user || $scope.authentication.user
             if (friend.pendingFriends.indexOf(user._id) === -1){
                 friend.pendingFriends.push(user._id);

@@ -1,6 +1,13 @@
 <section data-ng-controller="InteractionsController" ng-init="friendViewer()">
-
-    <p>This is the template you are looking for.</p>
+    <div class="nav" >
+        <ul class="pull-left"><li><a href="#!/">Home</a></li></ul>
+        <ul ng-show="authentication.user" class="pull-right">
+            <li><a href="/#!/users"> User List</a> </li>
+            <li><a href="/#!/interactions/create">Log New Event!</a></li>
+            <li ng-show="authentication.user.pendingFriends.length > 0 || authentication.user.friends.length > 0"><a href="/#!/friends">Friends</a></li>
+            <li><a href="/signout">Signout</a></li>
+        </ul>
+    </div>
     <div>
         <div ng-show="logs.length === 0"> Looks like you don't have any logs yet... get logging!</div>
         <div class="row">

@@ -85,8 +85,6 @@ describe('User Model Adding friends tests: ', function(){
         //        should.not.exist(err);
         //    });
         //});
-
-
     });
 
     afterEach(function(done){

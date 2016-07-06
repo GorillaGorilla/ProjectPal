@@ -66,13 +66,6 @@ exports.add = function (req, res, next){
     });
 }
 
-exports.addFriend = function(req, res){
-    //assumes there will be the added user in req.user, and the adder in req.body.user
-    //also will only add the person logged in to the friendlist of the person they clicked on
-    var user = req.user;
-    user.friends.push(req.body.user._id);
-
-}
 
 exports.update = function(req, res, next){
     //console.log("update req.body: " + JSON.stringify(req.body));

@@ -1,4 +1,14 @@
 <section data-ng-controller="UsersController" data-ng-init="find()">
+    <div class="nav" >
+        <ul class="pull-left"><li><a href="#!/">Home</a></li></ul>
+        <ul ng-show="authentication.user" class="pull-right">
+            <li><a href="/#!/users"> User List</a> </li>
+            <li><a href="/#!/interactions/create">Log New Event!</a></li>
+            <li ng-show="authentication.user.pendingFriends.length > 0 || authentication.user.friends.length > 0">
+                <a href="/#!/friends" ng-class="{notify:[authentication.user.pendingFriends.length > 0]}">Friends</a></li>
+            <li><a href="/signout">Signout</a></li>
+        </ul>
+    </div>
     <h1>Users</h1>
     <ul>
         <li data-ng-repeat="user in users">

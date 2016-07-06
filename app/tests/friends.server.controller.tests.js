@@ -61,8 +61,9 @@ describe('Friends Controller Unit Tests:', function() {
     describe('Testing making a friend request', function() {
         it('Should be able to send a friend request', function(done){
             //console.log("user2 send: " + JSON.stringify(user2));
-            agent.post('/api/friends/')
-                .send(user2)
+            var route = '/api/users/' + user2.id;
+                agent.put(route)
+                .send(user)
                 .set('Accept','application/json')
                 .expect(200)
                 .end(function(err,res){
