@@ -36,9 +36,9 @@ exports.read = function(req, res){
 exports.userByID = function (req, res, next, id) {
     //req.user contains the current;ly logged in user, req.body contains the request contents (also a user).
     //this function finds the user by the url id and replaced req.user with this. req.body doesn't change.
-    console.log("userByID: " + id);
-    console.log("userById req.body before: " + JSON.stringify(req.body));
-    console.log("userBy Id req.user " + req.user);
+    //console.log("userByID: " + id);
+    //console.log("userById req.body before: " + JSON.stringify(req.body));
+    //console.log("userBy Id req.user " + req.user);
     User.findOne({_id: id}, function(err,user){
         if (err) {
             return next(err);
@@ -69,7 +69,7 @@ exports.add = function (req, res, next){
 
 exports.update = function(req, res, next){
     //console.log("update req.body: " + JSON.stringify(req.body));
-    //console.log("update req.user: " + req.user);
+    console.log("update req.user: " + req.user);
     User.findByIdAndUpdate(req.user.id, req.body, function(err, user){
         if (err) {
             return next(err);
