@@ -69,7 +69,7 @@ exports.add = function (req, res, next){
 
 exports.update = function(req, res, next){
     //console.log("update req.body: " + JSON.stringify(req.body));
-    console.log("update req.user: " + req.user);
+    //console.log("update req.user: " + req.user);
     User.findByIdAndUpdate(req.user.id, req.body, function(err, user){
         if (err) {
             return next(err);

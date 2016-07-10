@@ -28,7 +28,7 @@ var testLogRelevance = function(){
 
 RELEVANCE.filterForRelevance = function(logs, person1, person2){
 
-
+    if (logs.length === 0) {return []}
     var result = logs.filter(function(log){
         var args  = [];
         args.push(person1);
@@ -135,8 +135,6 @@ exports.getScore = function(req, res){
             var logsFilt = RELEVANCE.filterForRelevance(logs, person1, person2);
             var userBalance = 0;
             var friendBalance = 0;
-            console.log("logs filt1: " + logsFilt)
-
             logsFilt
                 .forEach(function(a){
                     if (a.instigator.id === req.user.id){
@@ -144,8 +142,9 @@ exports.getScore = function(req, res){
                     }else{
                         friendBalance += a.level;
                     }
-
             });
+
+
 
             //    .reduce(function(a, b){
             //    return a.level + b.level;
