@@ -1,13 +1,16 @@
 /**
  * Created by GB115151 on 16/06/2016.
  */
+"use strict";
 var app = require('../../server'),
     request = require('supertest'),
     should = require('should'),
     mongoose = require('mongoose'),
     User = mongoose.model('User'),
-    Interaction = mongoose.model('Interaction'),
-    interactionController = require('../controllers/interactions.server.controller');
+    Interaction = mongoose.model('Interaction');
+
+var user, user2, retrievedUser, log,
+    agent = request.agent(app);
 
 describe('Interaction controller unit tests:', function(){
     beforeEach(function(done){
@@ -28,13 +31,47 @@ describe('Interaction controller unit tests:', function(){
             password: 'password'
         });
 
+        var func = function (){
+
+        }();
+
+        log = new Interaction({instigator:user2.id,
+            target: user.id,
+            description: "this is a test log",
+            level: 1
+        });
+
         makeFriendship(user, user2, done);
 
     });
+    it('should not crash during before hook!', function(){
 
+    });
 
-    describe('Testing the testLogRelevance method', function(){
+    it('should be able to create an interaction between 2 friends', function(done){
+        agent.post('/signin')
+            .send({"username": user.username, "password": user.password})
+            .expect(302)
+            .expect('Location','/')
+            .end(function (err, res){
+                agent.post('/api/interactions')
+                    .send(log)
+                    .expect(200)
+                    .end(function(err, res){
+                        if (err){console.log("creaate interaction err: " + err)}
+                        res.body.should.be.an.Object.and.have.property('creator', user.id);
+                        res.body.should.have.property('description', log.description);
+                        res.body.should.have.property('target', user.id);
+                        res.body.should.have.property('instigator', user2.id);
+                        done();
+                    });
+            })
 
+    });
+
+    afterEach(function(){
+        User.remove().exec();
+        Interaction.remove().exec();
     });
 
 
@@ -111,8 +148,14 @@ var create2Users = function(user, user2, cb){
         });
 };
 
+
+
 var makeFriendship = function (user1, user2, cb){
-    create2Users(user1, user2,
-        requestFriendship(user1,user2,
-            acceptFriendRequest(user1, user2, cb)));
+    var f = function () {
+        create2Users(user1, user2, function(){
+            requestFriendship(user1, user2, function(){
+                acceptFriendRequest(user1, user2, cb);
+            });
+        });
+    }();
 };
