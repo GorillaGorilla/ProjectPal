@@ -87,7 +87,6 @@ exports.listpending = function(req,res){
 };
 
 exports.friendById = function(req, res, next, id){
-    console.log("friendById called");
     User.findOne({_id: id}, function(err,friend){
         if (err) {
             return next(err);
@@ -99,7 +98,6 @@ exports.friendById = function(req, res, next, id){
 };
 
 exports.friendWfriendsById = function(req, res, next, id){
-    console.log("friendWfriendsById called");
     User.findById(id)
         .populate('friends','username')
         .exec(function(err,friend){
@@ -113,7 +111,7 @@ exports.friendWfriendsById = function(req, res, next, id){
 };
 
 exports.friend2WfriendsById = function(req, res, next, id){
-    console.log("friend2WfriendsById called");
+    //console.log("friend2WfriendsById called");
     User.findById(id)
         .populate('friends','username')
         .exec(function(err,friend){

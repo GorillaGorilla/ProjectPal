@@ -45,6 +45,10 @@ var UserSchema = new Schema({
     created: {
         type: Date,
         default: Date.now
+    },
+    lastLogin: {
+        type: Date,
+        default : Date.now
     }
 });
 UserSchema.add({friends: [{ type : Schema.ObjectId, ref: 'User' }]});

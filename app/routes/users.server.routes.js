@@ -33,7 +33,7 @@ module.exports = function(app) {
             successRedirect: '/',
             failureRedirect: '/signin',
             failureFlash: true
-        }));
+        }),users.updateLastSignin);
 
     app.get('/signout', users.signout);
 

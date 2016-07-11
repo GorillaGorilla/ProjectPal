@@ -154,6 +154,14 @@ exports.signout = function(req, res) {
     res.redirect('/');
 };
 
+exports.updateLastSignin = function(req, res, next){
+    console.log("update signing called")
+    var date = new Date();
+    User.findByIdAndUpdate(req.user.id, {lastLogin: date.now()}, function(err, user){
+        next();
+    });
+};
+
 exports.requiresLogin = function(req, res, next) {
     if (!req.isAuthenticated()) {
         return res.status(401).send({
