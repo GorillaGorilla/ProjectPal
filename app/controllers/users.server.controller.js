@@ -29,7 +29,6 @@ exports.list = function(req, res, next){
 };
 
 exports.read = function(req, res){
-    console.log("read");
     res.json(req.user);
 };
 

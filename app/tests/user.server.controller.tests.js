@@ -122,7 +122,6 @@ describe("Testing setting up 2 new accounts and logging in", function(){
         done();
     });
         it('should create two new accounts sequentially',function(done){
-            console.log("signing Up:" );
             agent.post('/signup')
                 .send(user)
                 .expect(302)

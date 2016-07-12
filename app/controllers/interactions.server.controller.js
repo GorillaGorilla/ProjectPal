@@ -79,8 +79,6 @@ var getErrorMessage = function(err) {
 };
 
 exports.list = function(req, res){
-    console.log("list called");
-
     Interaction.find()
         .populate('target','username firstName lastName fullName')
         .populate('instigator','username firstName lastName fullName')
@@ -91,6 +89,12 @@ exports.list = function(req, res){
         } else {
             //console.log("logs before filter: " + JSON.stringify(logs));
             var logsfilt = RELEVANCE.filterForRelevance(logs, req.user, req.friend);
+            logsfilt.sort(function(a,b){
+                return (b.created.getTime() - a.created.getTime())
+            });
+            logsfilt.forEach(function(log){
+                console.log("log: " + log.description + ' ' + log.created.getTime());
+            });
             res.json(logsfilt);
         }
     });
