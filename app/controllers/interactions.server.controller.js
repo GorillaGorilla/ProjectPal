@@ -92,16 +92,13 @@ exports.list = function(req, res){
             logsfilt.sort(function(a,b){
                 return (b.created.getTime() - a.created.getTime())
             });
-            logsfilt.forEach(function(log){
-                console.log("log: " + log.description + ' ' + log.created.getTime());
-            });
             res.json(logsfilt);
         }
     });
 };
 
 exports.listFriendLogs = function(req, res){
-    console.log("list friend log called");
+    //console.log("list friend log called");
     Interaction.find()
         .populate('target','username firstName lastName fullName')
         .populate('instigator','username firstName lastName fullName')
@@ -111,10 +108,15 @@ exports.listFriendLogs = function(req, res){
                 return res.send(err);
             } else {
                 //console.log("logs before filter: " + JSON.stringify(logs));
+                //console.log("req.user.friends: " + JSON.stringify(req.user.friends));
                 var logsfilt = RELEVANCE.filterForRelevance(logs, req.friend, req.friend2)
+                //console.log("logs after filter: " + JSON.stringify(logs));
+                logsfilt
                     .map(function(log){
-                        log.instigator = req.user.friends.indexOf(log.instigator.id) === -1 ? 'mystery' : log.instigator ;
-                        log.target = req.user.friends.indexOf(log.target.id) === -1 ? 'mystery' : log.target
+                        log.instigator.username = (req.user.friends.indexOf(log.instigator.id) === -1
+                        && log.instigator.id !== req.user.id) ? 'mystery' : log.instigator.username ;
+                        log.target.username = (req.user.friends.indexOf(log.target.id) === -1
+                        && log.target.id !== req.user.id) ? 'mystery' : log.target.username;
                     });
                 res.json(logsfilt);
             }
