@@ -1,12 +1,14 @@
 /**
  * Created by GB115151 on 16/05/2016.
  */
+
+"use strict";
 var app = require('../../server'),
     request = require('supertest'),
     should = require('should'),
     mongoose = require('mongoose'),
     User = mongoose.model('User');
-var user, user2,
+var user, user2, retrievedUser,
 agent = request.agent(app);
 
 describe('Friends Controller Unit Tests:', function() {
@@ -20,48 +22,24 @@ describe('Friends Controller Unit Tests:', function() {
             password: 'password'
         });
         user2 = new User({
-            firstName: 'Full',
-            lastName: 'Name',
+            firstName: 'Full2',
+            lastName: 'Name2',
             displayName: 'Full Name2',
             email: 'test2@test.com',
             username: 'username2',
             password: 'password'
         });
 
-        agent.post('/signup')
-            .send(user)
-            .end(function (err, res) {
-                if(err){console.log("Error first signup: " + err);}
-                agent.get('/signout')
-                    .end(function(err, res) {
-                        agent.post('/signup')
-                            .send(user2)
-                            .end(function(err, res){
-                                if(err){console.log("Error second signup: " + err);}
-                                agent.get('/signout')
-                                    .end(function(err, res){
-                                        agent.post('/signin')
-                                            .send({ "username": "username", "password": "password" })
-                                            .end(function (err, res){
-                                                if(err){console.log("Error signin: " + err);}
-                                                done();
-                                                //User.find().exec(function(err,doc){
-                                                //    doc.should.be.an.Array.and.have.lengthOf(2);
-                                                //    done();
-                                                //});
-
-                                            });
-                                    });
-                            });
-                    });
-
-            });
+        create2Users(user, user2, done);
     });
 
     describe('Testing making a friend request', function() {
         it('Should be able to send a friend request', function(done){
             //console.log("user2 send: " + JSON.stringify(user2));
-            agent.post('/api/friends/')
+            user2.pendingFriends.push(user.id);
+            var route = '/api/users/' + user2.id;
+            delete user2.password;
+                agent.put(route)
                 .send(user2)
                 .set('Accept','application/json')
                 .expect(200)
@@ -83,47 +61,40 @@ describe('Friends Controller Unit Tests:', function() {
     });
 
     describe('Testing accepting a friend request', function(){
-        beforeEach(function(done){
-            agent.post('/api/friends/')
-                .send(user2)
-                .set('Accept','application/json')
-                .end(function(err,res){
-                    done();
-                });
+        beforeEach(function(done) {
+            requestFriendship(user, user2, done);
         });
+
         it('Should be able to accept a friend from the pending list', function(done){
-            //User.find().exec(function(err,doc){
-            //    doc.should.be.an.Array.and.have.lengthOf(2);  //works
-            //    console.log("users: " + '\n' + doc);
-            //    done();
-            //});
+            var route = '/api/pendingfriends/' + user.id;
 
-            agent.get('/signout')
-                .end(function(err, res){
-                    if (err){console.log("error signing out");}
-                    agent.post('/signin')
-                        .send({"username": "username2", "password": "password"})
-                        .expect(302)
-                        .expect('Location','/')
-                        .end(function (err, res){
-                            if(err){console.log("Error signin: " + err);}
-
-                            agent.put('/api/friends/')
-                                .send(user)
-                                .set('Accept','application/json')
-                                .expect(200)
-                                .end(function(err,res){
-                                    should.not.exist(err);
-                                    User.findOne({_id: res.id}).populate('friends', 'username').exec(function(err, friend){
+            agent.post('/signin')
+                .send({"username": user2.username, "password": user2.password})
+                .expect(302)
+                .expect('Location','/')
+                .end(function (err, res){
+                    if(err){console.log("Error signin: " + err);}
+                    User.findOne({_id : user.id}).exec(function(err, user) {
+                        retrievedUser = user;
+                        agent.put(route)
+                            .send(user)
+                            .set('Accept','application/json')
+                            .expect(200)
+                            .end(function(err,res){
+                                should.not.exist(err);
+                                User.findOne({_id: user.id}).populate('friends', 'username').exec(function(err, friend){
+                                    friend.friends.should.be.an.Array.and.have.lengthOf(1);
+                                    friend.friends[0].should.have.property('username', user2.username);
+                                    //friend.pendingFriends.should.be.an.Array.and.have.lengthOf(0);
+                                    User.findOne({_id: user2.id}).populate('friends', 'username').exec(function(err, friend) {
                                         friend.friends.should.be.an.Array.and.have.lengthOf(1);
-                                        friend.friends[0].should.have.property('username', user2.username);
-                                        //friend.pendingFriends.should.be.an.Array.and.have.lengthOf(0);
+                                        friend.friends[0].should.have.property('username', user.username);
                                         done();
                                     });
                                 });
-                        });
+                            });
+                    });
                 });
-
         });
     });
 
@@ -166,12 +137,63 @@ describe('Friends Controller Unit Tests:', function() {
 
 
     afterEach(function(done) {
-        User.remove().exec();
         request(app).get('/signout')
             .end(function(err, res) {
                 if (err) console.log("logout error: " + err);
+                User.remove().exec();
                 done();
             });
     });
 
 });
+
+
+
+
+var requestFriendship = function(user,user2,cb){
+    User.findOne({_id : user2.id}).exec(function(err, user){
+        retrievedUser = user;
+        retrievedUser.pendingFriends.push(user.id);
+        //console.log("user2 retreived: " + retrievedUser);
+        var route = '/api/users/' + user2.id;
+        agent.put(route)
+            .send(retrievedUser)
+            .set('Accept', 'application/json')
+            .expect(200)
+            .end(function (err, res) {
+                if (err) {console.log("add friend err: " + err);}
+                agent.get('/signout')
+                    .end(function(err, res) {
+                        if (err){"signout err: " + err}
+                        cb();
+                    });
+            });
+    });
+};
+
+var create2Users = function(user, user2, cb){
+    agent.post('/signup')
+        .send(user)
+        .end(function (err, res) {
+            if(err){console.log("Error first signup: " + err);}
+            agent.get('/signout')
+                .end(function(err, res) {
+                    agent.post('/signup')
+                        .send(user2)
+                        .end(function(err, res){
+                            if(err){console.log("Error second signup: " + err);}
+                            agent.get('/signout')
+                                .end(function(err, res){
+                                    agent.post('/signin')
+                                        .send({ "username": "username", "password": "password" })
+                                        .end(function (err, res){
+                                            if(err){console.log("Error signin: " + err);}
+                                            cb();
+
+                                        });
+                                });
+                        });
+                });
+
+        });
+};

@@ -28,7 +28,7 @@ var testLogRelevance = function(){
 
 RELEVANCE.filterForRelevance = function(logs, person1, person2){
 
-
+    if (logs.length === 0) {return []}
     var result = logs.filter(function(log){
         var args  = [];
         args.push(person1);
@@ -79,8 +79,6 @@ var getErrorMessage = function(err) {
 };
 
 exports.list = function(req, res){
-    console.log("list called");
-
     Interaction.find()
         .populate('target','username firstName lastName fullName')
         .populate('instigator','username firstName lastName fullName')
@@ -91,6 +89,12 @@ exports.list = function(req, res){
         } else {
             //console.log("logs before filter: " + JSON.stringify(logs));
             var logsfilt = RELEVANCE.filterForRelevance(logs, req.user, req.friend);
+            logsfilt.sort(function(a,b){
+                return (b.created.getTime() - a.created.getTime())
+            });
+            logsfilt.forEach(function(log){
+                console.log("log: " + log.description + ' ' + log.created.getTime());
+            });
             res.json(logsfilt);
         }
     });
@@ -107,13 +111,11 @@ exports.listFriendLogs = function(req, res){
                 return res.send(err);
             } else {
                 //console.log("logs before filter: " + JSON.stringify(logs));
-                var logsfilt = RELEVANCE.filterForRelevance(logs, req.friend, req.friend2);
-                //    .map(function(log){
-                //    // if req.user.friends !contains then
-                //    log.instigator = 'mystery';
-                //    log.target = 'mystery';
-                //    return log;
-                //});
+                var logsfilt = RELEVANCE.filterForRelevance(logs, req.friend, req.friend2)
+                    .map(function(log){
+                        log.instigator = req.user.friends.indexOf(log.instigator.id) === -1 ? 'mystery' : log.instigator ;
+                        log.target = req.user.friends.indexOf(log.target.id) === -1 ? 'mystery' : log.target
+                    });
                 res.json(logsfilt);
             }
         });
@@ -130,42 +132,36 @@ exports.getScore = function(req, res){
         } else {
             var person1 = (!req.friend2) ? req.user : req.friend;
             var person2 = req.friend2 || req.friend;
-
             var logsFilt = RELEVANCE.filterForRelevance(logs, person1, person2);
             var userBalance = 0;
             var friendBalance = 0;
-            console.log("logs filt1: " + logsFilt)
-
             logsFilt
+                .filter(function(log){
+                    return log.instigator.id === person1.id
+                })
                 .forEach(function(a){
-                    if (a.instigator.id === req.user.id){
                         userBalance = userBalance + a.level;
-                    }else{
-                        friendBalance += a.level;
-                    }
-
             });
-
-            //    .reduce(function(a, b){
-            //    return a.level + b.level;
-            //});
-
-
-            //logsFilt.filter(function(log){
-            //    return (log.instigator.id === req.friend.id);
-            //}).forEach(function(log){
-            //    friendBalance += log.score;
-            //});
+            if (person2){
+                logsFilt
+                    .filter(function(log){
+                        return log.instigator.id === person2.id
+                    })
+                    .forEach(function(a){
+                        friendBalance = friendBalance + a.level;
+                    });
+            }
             res.json({
                 userBalance: userBalance,
                 friendBalance: friendBalance
             });
         }
     });
-
 };
 
+exports.scoreTwo = function(req, res, next){
 
+};
 
 exports.interactionByID = function(req, res, next, id) {
     Interaction.findById(id).populate('creator', 'firstName lastName fullName')

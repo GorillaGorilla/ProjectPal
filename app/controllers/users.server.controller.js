@@ -29,16 +29,15 @@ exports.list = function(req, res, next){
 };
 
 exports.read = function(req, res){
-    console.log("read");
     res.json(req.user);
 };
 
 exports.userByID = function (req, res, next, id) {
     //req.user contains the current;ly logged in user, req.body contains the request contents (also a user).
     //this function finds the user by the url id and replaced req.user with this. req.body doesn't change.
-    console.log("userByID: " + id);
-    console.log("userById req.body before: " + JSON.stringify(req.body));
-    console.log("userBy Id req.user " + req.user);
+    //console.log("userByID: " + id);
+    //console.log("userById req.body before: " + JSON.stringify(req.body));
+    //console.log("userBy Id req.user " + req.user);
     User.findOne({_id: id}, function(err,user){
         if (err) {
             return next(err);
@@ -66,13 +65,6 @@ exports.add = function (req, res, next){
     });
 }
 
-exports.addFriend = function(req, res){
-    //assumes there will be the added user in req.user, and the adder in req.body.user
-    //also will only add the person logged in to the friendlist of the person they clicked on
-    var user = req.user;
-    user.friends.push(req.body.user._id);
-
-}
 
 exports.update = function(req, res, next){
     //console.log("update req.body: " + JSON.stringify(req.body));
@@ -159,6 +151,14 @@ exports.signup = function(req, res, next) {
 exports.signout = function(req, res) {
     req.logout();
     res.redirect('/');
+};
+
+exports.updateLastSignin = function(req, res, next){
+    console.log("update signing called")
+    var date = new Date();
+    User.findByIdAndUpdate(req.user.id, {lastLogin: date.now()}, function(err, user){
+        next();
+    });
 };
 
 exports.requiresLogin = function(req, res, next) {

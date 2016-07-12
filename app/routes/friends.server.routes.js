@@ -7,7 +7,6 @@ users = require('../../app/controllers/users.server.controller');
 module.exports = function(app) {
     app.route('/api/friends')
         .get(users.requiresLogin, friends.list)
-        .post(users.requiresLogin, friends.add)
         .put(users.requiresLogin, friends.accept)
         .delete(users.requiresLogin, friends.decline);
     app.route('/api/friends/:friendId')
