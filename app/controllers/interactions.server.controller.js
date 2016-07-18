@@ -15,7 +15,6 @@ var testLogRelevance = function(){
     var inverseWay = function(){
         return (log.target.id === person1.id && log.instigator.id === person2.id);
     };
-
     if (args.length === 3){
         var log = args[2];
         var person1 = args[0];
@@ -111,8 +110,10 @@ exports.listFriendLogs = function(req, res){
                 //console.log("req.user.friends: " + JSON.stringify(req.user.friends));
                 var logsfilt = RELEVANCE.filterForRelevance(logs, req.friend, req.friend2)
                 //console.log("logs after filter: " + JSON.stringify(logs));
+
                 logsfilt
                     .map(function(log){
+                        //console.log("log: " + JSON.stringify(log));
                         log.instigator.username = (req.user.friends.indexOf(log.instigator.id) === -1
                         && log.instigator.id !== req.user.id) ? 'mystery' : log.instigator.username ;
                         log.target.username = (req.user.friends.indexOf(log.target.id) === -1
