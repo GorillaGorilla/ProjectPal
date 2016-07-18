@@ -14,6 +14,7 @@ var user, user2, user3, retrievedUser, log, log2, log3,
 
 describe('Interaction controller unit tests:', function(){
     beforeEach(function(done){
+        //console.log("beforeEach1");
         user = new User({
             firstName: 'Full',
             lastName: 'Name',
@@ -201,6 +202,7 @@ describe('Interaction controller unit tests:', function(){
     describe('tests 3 friends:', function() {
 
         beforeEach(function (done) {
+            //console.log("beforeEach2");
             log = new Interaction({
                 instigator: user2.id,
                 target: user.id,
@@ -263,7 +265,15 @@ describe('Interaction controller unit tests:', function(){
                                                     .send(log2)
                                                     .expect(200)
                                                     .end(function(err, res){
-                                                        done();
+                                                        should.not.exist(err);
+                                                        agent.get('/signout')
+                                                            .expect(302)
+                                                            .expect('Location','/')
+                                                            .end(function(err, res){
+                                                                should.not.exist(err);
+                                                                done();
+                                                            });
+
                                                     });
                                             });
                                     });
@@ -342,7 +352,7 @@ describe('Interaction controller unit tests:', function(){
                 });
         });
 
-        it('should be able to retrieve a list of logs for a 2 friends and hide usernames nor non-friends', function(done){
+        it('should be able to retrieve a list of logs for a 2 friends and hide usernames for non-friends', function(done){
             agent.post('/signin')
                 .send({"username" : user3.username, "password" : user3.password})
                 .expect(302)
@@ -352,14 +362,14 @@ describe('Interaction controller unit tests:', function(){
                         .expect(200)
                         .end(function(err, res){
                             should.not.exist(err);
-                            res.body.forEach(function(log){
-                               console.log(log.instigator);
-                            });
                             res.body.should.be.an.Array.and.have.length(2);
-                            //error may be because logs arnt in correct order. time between logs being saved is too small.
-                            //could do indexOf using log.id to find the one I want and then compare the usernames...
-                            res.body[1].instigator.should.be.an.Object.and.have.property('username','mystery');
-                            res.body[1].target.should.be.an.Object.and.have.property('username',user.username);
+                            //console.log("log.id: " + log.id);
+                            var index = res.body.map(function(el) {
+                                return el._id;
+                            }).indexOf(log.id);
+                            index.should.not.equal(-1);
+                            res.body[index].instigator.should.be.an.Object.and.have.property('username','mystery');
+                            res.body[index].target.should.be.an.Object.and.have.property('username',user.username);
                             done();
                         });
                 });
@@ -388,20 +398,22 @@ describe('Interaction controller unit tests:', function(){
 
 
 var acceptFriendRequest = function(user, user2, cb){
-    var route = '/api/pendingfriends/' + user.id;
+    var route = '/api/pendingfriends/' + user2.id;
     agent.post('/signin')
         .send({"username": user.username, "password": user.password})
         .expect(302)
         .expect('Location','/')
         .end(function (err, res){
             if(err){console.log("Error signin: " + err);}
-            User.findOne({_id : user.id}).exec(function(err, user) {
+            User.findOne({_id : user2.id}).exec(function(err, user) {
                 retrievedUser = user;
                 agent.put(route)
                     .send(user)
                     .set('Accept','application/json')
                     .expect(200)
                     .end(function(err,res){
+                        should.not.exist(err);
+                        res.should.be.an.Object;
                         agent.get('/signout')
                             .expect(302)
                             .end(function(err,res){
@@ -414,19 +426,20 @@ var acceptFriendRequest = function(user, user2, cb){
 };
 
 
-var requestFriendship = function(user,user2,cb){
-    User.findOne({_id : user2.id}).exec(function(err, user){
+var requestFriendship = function(u1,u2,cb){
+    User.findOne({_id : u2.id}).exec(function(err, user){
+        should.not.exist(err);
         //User.find().exec(function(err, user){
         retrievedUser = user;
-        retrievedUser.pendingFriends.push(user.id);
+        retrievedUser.pendingFriends.push(u1.id);
         //    user.forEach(function(u){
         //        console.log(u);
         //    });
         //console.log("username: " + user2.username);
         //console.log("password: " + user2.password);
-        var route = '/api/users/' + user2.id;
+        var route = '/api/users/' + u2.id;
         agent.post('/signin')
-            .send({"username" : user2.username, "password" : user2.password})
+            .send({"username" : u2.username, "password" : u2.password})
             .expect(302)
             .expect('Location','/')
             .end(function(err, res){
@@ -437,9 +450,12 @@ var requestFriendship = function(user,user2,cb){
                     .expect(200)
                     .end(function (err, res) {
                         if (err) {console.log("add friend err: " + err);}
+                        should.not.exist(err);
+                        res.should.be.an.Object;
                         agent.get('/signout')
                             .end(function(err, res) {
                                 if (err){"signout err: " + err}
+                                should.not.exist(err);
                                 cb();
                             });
                     });
@@ -492,10 +508,10 @@ var createUserInDB = function(user, cb){
 
 
 
-var makeFriendship = function (user1, user2, cb){
+var makeFriendship = function (userA, userB, cb){
     var f3 = function () {
-            requestFriendship(user1, user2, function(){
-                acceptFriendRequest(user1, user2, cb);
+            requestFriendship(userA, userB, function(){
+                acceptFriendRequest(userA, userB, cb);
             });
 
     }();
