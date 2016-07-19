@@ -38,8 +38,13 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
         };
 
         $scope.list = function(){
+            var fId = $routeParams.friendId || $scope.authentication.user.id;
             $scope.logs = Interactions.query({
-                friendId: $routeParams.friendId
+                friendId: fId
+            },function(response) {
+            }, function(errorResponse) {
+                console.log("err: " + errorResponse)
+                $scope.error = errorResponse.data.message;
             });
         };
 
@@ -61,8 +66,6 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
         };
 
         $scope.getScore = function(){
-
-
             var reqObj = {};
             if($routeParams.friendId){
                 reqObj = {friendId: $routeParams.friendId};;
@@ -74,7 +77,6 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
             }
 
             $scope.stats = Interactions.seeScores(reqObj, function(res){
-                console.log("res: " + JSON.stringify(res));
                 $scope.stats = res;
             });
         };

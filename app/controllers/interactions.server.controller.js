@@ -1,53 +1,10 @@
 /**
  * Created by GB115151 on 29/04/2016.
  */
+'use strict';
 var mongoose = require("mongoose"),
-    Interaction = mongoose.model('Interaction');
-
-var RELEVANCE = {};
-
-var testLogRelevance = function(){
-    var args = Array.prototype.slice.call(arguments);
-    //console.log("args: " + args + '\n' + '-------');
-    var oneWay = function(){
-        return (log.instigator.id === person1.id && log.target.id === person2.id);
-    };
-    var inverseWay = function(){
-        return (log.target.id === person1.id && log.instigator.id === person2.id);
-    };
-    if (args.length === 3){
-        var log = args[2];
-        var person1 = args[0];
-        var person2 = args[1];
-        return (oneWay()|| inverseWay())
-    }else if (args.length ===2 ){
-        return (args[1].instigator.id === args[0].id || args[1].target.id === args[0].id)
-    }
-};
-
-RELEVANCE.filterForRelevance = function(logs, person1, person2){
-
-    if (logs.length === 0) {return []}
-    var result = logs.filter(function(log){
-        var args  = [];
-        args.push(person1);
-        if (person2){args.push(person2)}
-        args.push(log);
-        return testLogRelevance.apply(null, args);
-    });
-    return result;
-};
-
-
-
-
-
-// make it a generic function, with first person, 2nd person. Then have the logic if user only, then user = first person.
-// if friend then user and friend.
-// if friend and... then friend only
-// if friend and friend2 then list stuff... but only the ones who are mutual friends...
-
-// in this case maybe have a function for user and friend, then another for viewing friends
+    Interaction = mongoose.model('Interaction'),
+    Utils = require('../controllers/utils2');
 
 exports.create = function(req, res) {
     //console.log("create interaction body: " + JSON.stringify(req.body) + '\n');
@@ -87,7 +44,7 @@ exports.list = function(req, res){
             return res.send(err);
         } else {
             //console.log("logs before filter: " + JSON.stringify(logs));
-            var logsfilt = RELEVANCE.filterForRelevance(logs, req.user, req.friend);
+            var logsfilt = Utils.filterForRelevance(logs, req.user, req.friend);
             logsfilt.sort(function(a,b){
                 return (b.created.getTime() - a.created.getTime())
             });
@@ -97,7 +54,7 @@ exports.list = function(req, res){
 };
 
 exports.listFriendLogs = function(req, res){
-    //console.log("list friend log called");
+    console.log("list friend log called");
     Interaction.find()
         .populate('target','username firstName lastName fullName')
         .populate('instigator','username firstName lastName fullName')
@@ -108,21 +65,18 @@ exports.listFriendLogs = function(req, res){
             } else {
                 //console.log("logs before filter: " + JSON.stringify(logs));
                 //console.log("req.user.friends: " + JSON.stringify(req.user.friends));
-                var logsfilt = RELEVANCE.filterForRelevance(logs, req.friend, req.friend2)
-                //console.log("logs after filter: " + JSON.stringify(logs));
+                var logsfilt = Utils.filterForRelevance(logs, req.friend, req.friend2);
+                logsfilt = Utils.hideNames(logsfilt,req.user);
+                logsfilt.sort(function(a,b){
+                    return (b.created.getTime() - a.created.getTime())
+                });
 
-                logsfilt
-                    .map(function(log){
-                        //console.log("log: " + JSON.stringify(log));
-                        log.instigator.username = (req.user.friends.indexOf(log.instigator.id) === -1
-                        && log.instigator.id !== req.user.id) ? 'mystery' : log.instigator.username ;
-                        log.target.username = (req.user.friends.indexOf(log.target.id) === -1
-                        && log.target.id !== req.user.id) ? 'mystery' : log.target.username;
-                    });
                 res.json(logsfilt);
             }
         });
 };
+
+
 
 exports.getScore = function(req, res){
     Interaction.find()
@@ -135,7 +89,7 @@ exports.getScore = function(req, res){
         } else {
             var person1 = (!req.friend2) ? req.user : req.friend;
             var person2 = req.friend2 || req.friend;
-            var logsFilt = RELEVANCE.filterForRelevance(logs, person1, person2);
+            var logsFilt = Utils.filterForRelevance(logs, person1, person2);
             var userBalance = 0;
             var friendBalance = 0;
             logsFilt

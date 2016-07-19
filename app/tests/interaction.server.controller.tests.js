@@ -128,7 +128,7 @@ describe('Interaction controller unit tests:', function(){
             });
 
             it('should be able to return a full list of logs for a logged in user', function(done){
-                agent.get('/api/interactions')
+                agent.get('/api/interactions/' + user2.id)
                     .expect(200)
                     .end(function(err, res){
                         should.not.exist(err);
