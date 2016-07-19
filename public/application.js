@@ -1,10 +1,10 @@
 /**
  * Created by Frederick on 26/03/2016.
  */
-var mainApplicationModuleName = 'mean';
+var mainApplicationModuleName = 'palanalyst';
 
 var mainApplicationModule = angular.module(mainApplicationModuleName, ['ngResource',
-    'ngRoute','users','example', 'articles','friends', 'interactions']);
+    'ngRoute','users','example', 'articles','friends','chart.js','interactions']);
 
 mainApplicationModule.config(['$locationProvider',
 function($locationProvider){
