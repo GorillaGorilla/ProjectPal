@@ -42,6 +42,13 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
             $scope.logs = Interactions.query({
                 friendId: fId
             },function(response) {
+                $scope.stuff = $scope.logs.reduce(function(a, b){
+                    console.log("a: " + a);
+                    return (a.level + b.level);
+                }, 0);
+
+                console.log("stuff: " + $scope.stuff);
+
             }, function(errorResponse) {
                 console.log("err: " + errorResponse)
                 $scope.error = errorResponse.data.message;
@@ -57,6 +64,8 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
                 friend2Id: $routeParams.friend2Id};
             }
             $scope.logs = Interactions.viewFriend(reqObj);
+
+
         };
 
         $scope.findOne = function(){
@@ -87,6 +96,7 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
             console.log('openFriendLink clicked');
             $location.path('/interactions/' + log.instigator.id + '/show/' + log.target.id );
         };
+
 
         //chart stuff
         $scope.labels = ["January", "February", "March", "April", "May", "June", "July"];
