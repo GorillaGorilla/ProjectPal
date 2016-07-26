@@ -12,7 +12,6 @@ module.exports = function(app) {
     app.route('/api/friends/:friendId')
         .get(users.requiresLogin, friends.read)
         .put(users.requiresLogin, friends.accept);
-
     app.route('/api/pendingfriends')
         .get(users.requiresLogin, friends.listpending)
         .put(users.requiresLogin, friends.accept)

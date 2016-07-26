@@ -4,7 +4,7 @@
 var mainApplicationModuleName = 'palanalyst';
 
 var mainApplicationModule = angular.module(mainApplicationModuleName, ['ngResource',
-    'ngRoute','users','example', 'articles','friends','chart.js','interactions','chat']);
+    'ngRoute','users','example', 'articles','friends','chart.js','chat']);
 
 mainApplicationModule.config(['$locationProvider',
 function($locationProvider){

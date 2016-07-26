@@ -15,6 +15,7 @@ exports.add = function(req, res) {
         friend.pendingFriends.push(req.user.id);
         //using save will probably mess up passport/logging in... revisit if needed
         friend.save(function(err){
+            if (err) {res.send(err)}
             res.json(friend);
         });
     });

@@ -3,9 +3,7 @@
  */
 var mongoose = require('mongoose'),
     crypto = require('crypto'),
-    In = require('./interaction.server.model.js'),
-    Schema = mongoose.Schema
-    Interaction = mongoose.model('Interaction');
+    Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
     firstName: String,
@@ -69,35 +67,6 @@ UserSchema.pre('save', function(next) {
     next();
 });
 
-UserSchema.methods.getScore = function(friendId){
-    //not tested
-    Interaction.find().exec(function(err, logs){
-        if (err) {
-            console.log("list err: " + err);
-            return res.send(err);
-        } else {
-            var score = 0;
-            //console.log("logs before filter: " + JSON.stringify(logs));
-            var logsfilt = logs.filter(function(log){
-                return relevantInteraction(this, friendId, log);
-                //return (log.instigator.id === req.user.id || log.target.id === req.user.id)
-            }).filter(function(log){
-                return log.instigator === friendId;
-            }).forEach(function(log){
-                score += log.level;
-            });
-            return score;
-        }
-    });
-
-    var relevantInteraction = function(person1, person2, log){
-        if(!!person2){
-            return (log.instigator.id === person1 && log.target.id === person2 || log.target.id === person1 && log.instigator.id === person2)
-        }else{
-            return (log.instigator.id === person1 || log.target.id === person1)
-        }
-    };
-};
 UserSchema.methods.hashPassword = function(password) {
     return crypto.pbkdf2Sync(password, this.salt, 10000,64).toString('base64');
 };
