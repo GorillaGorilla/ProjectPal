@@ -3,7 +3,6 @@
         <ul class="pull-left"><li><a href="#!/">Home</a></li></ul>
         <ul ng-show="authentication.user" class="pull-right">
             <li><a href="/#!/users"> User List</a> </li>
-            <li><a href="/#!/interactions/create">Log New Event!</a></li>
             <li ng-show="authentication.user.pendingFriends.length > 0 || authentication.user.friends.length > 0"><a href="/#!/friends">Friends</a></li>
             <li><a href="/signout">Signout</a></li>
         </ul>
