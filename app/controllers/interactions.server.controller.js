@@ -92,6 +92,8 @@ exports.getScore = function(req, res){
             var logsFilt = Utils.filterForRelevance(logs, person1, person2);
             var userBalance = 0;
             var friendBalance = 0;
+            var userHistory = [];
+            var friendHistory = [];
             logsFilt
                 .filter(function(log){
                     return log.instigator.id === person1.id
@@ -108,9 +110,53 @@ exports.getScore = function(req, res){
                         friendBalance = friendBalance + a.level;
                     });
             }
+
+            var d = new Date();
+            for (var i = 0; i < 7; i++){
+                var histBalance = 0
+
+                    logsFilt.filter(function(log){
+                        //change to work with miliseconds
+                        console.log("log created: " + log.created);
+                        console.log("(d.getDate()-(7-i): " + (d.getDate()-(7-i)));
+                        return log.created.getTime() < (d.getTime()-(7-i)*3600*1000*24);
+                    }).filter(function(log){
+                        return log.instigator.id === person1.id
+                    })
+                        .forEach(function(a){
+                            histBalance = histBalance + a.level;
+                        });
+                console.log("histBalance: " + histBalance);
+                userHistory[i] = histBalance;
+            };
+
+            if (person2){
+                for (var i = 0; i < 7; i++){
+                    var histBalance = 0
+
+                    logsFilt.filter(function(log){
+                        //change to work with miliseconds
+                        console.log("log created: " + log.created);
+                        console.log("(d.getDate()-(7-i): " + (d.getDate()-(7-i)));
+                        return log.created.getTime() < (d.getTime()-(7-i)*3600*1000*24);
+                    }).filter(function(log){
+                        return log.instigator.id === person2.id
+                    })
+                        .forEach(function(a){
+                            histBalance = histBalance + a.level;
+                        });
+                    console.log("histBalance: " + histBalance);
+                    friendHistory[i] = histBalance;
+                };
+            };
+
+
+
             res.json({
                 userBalance: userBalance,
-                friendBalance: friendBalance
+                userHistory: userHistory,
+                friendBalance: friendBalance,
+                friendHistory: friendHistory
             });
         }
     });
@@ -128,9 +174,10 @@ exports.scoreTwo = function(req, res, next){
                 var person1 = (!req.friend2) ? req.user : req.friend;
                 var person2 = req.friend2 || req.friend;
                 var logsFilt = Utils.filterForRelevance(logs, person1, person2);
-                logsFilt.filter(function(log){
-                    return ;
-                });
+                // logsFilt.filter(function(log){
+                //     return ;
+                // });
+                res.json([]);
 
             }
         });

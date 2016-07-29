@@ -9,7 +9,7 @@ var app = require('../../server'),
     User = mongoose.model('User'),
     Interaction = mongoose.model('Interaction');
 
-var user, user2, user3, retrievedUser, log, log2, log3,
+var user, user2, user3, retrievedUser, log, log2, log3,log4,log5,
     agent = request.agent(app);
 
 describe('Interaction controller unit tests:', function(){
@@ -224,25 +224,40 @@ describe('Interaction controller unit tests:', function(){
 
         beforeEach(function (done) {
             //console.log("beforeEach2");
+            var date = new Date();
+            var d = new Date();
+            date.setDate(d.getDate()- 6);
             log = new Interaction({
                 instigator: user2.id,
                 target: user.id,
                 description: "this is a test log between 1st and 2nd user",
-                level: 1
+                level: 1,
+                created: date.getTime()
             });
+            date.setDate(d.getDate()- 3);
 
             log2 = new Interaction({
                 instigator: user.id,
                 target: user2.id,
                 description: "this is a test log between 2nd and 1st user",
-                level: -3
+                level: -3,
+                created: date.getTime()
             });
-
+            date.setDate(d.getDate()- 2);
             log3 = new Interaction({
                 instigator: user3.id,
                 target: user.id,
                 description: "this is a test log between 1st and 3rd user",
-                level: 3
+                level: 3,
+                created: date.getTime()
+            });
+            date.setDate(d.getDate()- 2);
+            log4 = new Interaction({
+                instigator: user2.id,
+                target: user.id,
+                description: "this is a test log between 1st and 3rd user",
+                level: 1,
+                created: date.getTime()
             });
 
             var f = function () {
@@ -272,10 +287,13 @@ describe('Interaction controller unit tests:', function(){
                         log3.save(function(err) {
                             if (err){console.log("save error; " + err)};
                             should.not.exist(err);
-                            done();
+                            log4.save(function(err) {
+                                if (err){console.log("save error; " + err)};
+                                should.not.exist(err);
+                                done();
+                            });
                         });
                     });
-
                 });
             };
 
@@ -296,12 +314,33 @@ describe('Interaction controller unit tests:', function(){
                         .expect(200)
                         .end(function(err, res){
                             should.not.exist(err);
-                            res.body.should.be.an.Object.and.have.property('userBalance',1);
+                            res.body.should.be.an.Object.and.have.property('userBalance',2);
                             res.body.should.be.an.Object.and.have.property('friendBalance',-3);
                             done();
                         });
                 });
         });
+
+        it('should be able to return an array of cummulative score per day',function(done){
+            agent.post('/signin')
+                .send({"username" : user2.username, "password" : user2.password})
+                .expect(302)
+                .expect('Location','/')
+                .end(function(err,res){
+                    should.not.exist(err);
+                    agent.get('/api/interactions/score/stats/' + user.id)
+                        .expect(200)
+                        .end(function(err,res){
+                            should.not.exist(err);
+                            res.body.userHistory.should.be.an.Array.and.have.length(7);
+                            res.body.userHistory[6].should.equal(2);
+                            res.body.friendHistory.should.be.an.Array.and.have.length(7);
+                            res.body.friendHistory[6].should.equal(-3);
+                            done();
+                        });
+                });
+        });
+
 
         it('should not be able to return scores if the user isn\'t logged in',function(done){
             agent.get('/signout')
@@ -327,7 +366,7 @@ describe('Interaction controller unit tests:', function(){
                         .expect(200)
                         .end(function(err, res){
                             should.not.exist(err);
-                            res.body.should.be.an.Array.and.have.length(2);
+                            res.body.should.be.an.Array.and.have.length(3);
                             done();
                         });
                 });
@@ -344,7 +383,7 @@ describe('Interaction controller unit tests:', function(){
                         .expect(200)
                         .end(function(err, res){
                             should.not.exist(err);
-                            res.body.should.be.an.Array.and.have.length(2);
+                            res.body.should.be.an.Array.and.have.length(3);
                             res.body[0].should.be.an.Object;
                             done();
                         });
@@ -361,7 +400,7 @@ describe('Interaction controller unit tests:', function(){
                         .expect(200)
                         .end(function(err, res){
                             should.not.exist(err);
-                            res.body.should.be.an.Array.and.have.length(2);
+                            res.body.should.be.an.Array.and.have.length(3);
                             //console.log("log.id: " + log.id);
                             var index = res.body.map(function(el) {
                                 return el._id;
