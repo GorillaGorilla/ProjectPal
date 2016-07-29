@@ -117,6 +117,24 @@ exports.getScore = function(req, res){
 };
 
 exports.scoreTwo = function(req, res, next){
+    Interaction.find()
+        .populate('target','username firstName lastName fullName')
+        .populate('instigator','username firstName lastName fullName')
+        .exec(function(err,logs) {
+            if (err) {
+                console.log("list err: " + err);
+                return res.send(err);
+            } else {
+                var person1 = (!req.friend2) ? req.user : req.friend;
+                var person2 = req.friend2 || req.friend;
+                var logsFilt = Utils.filterForRelevance(logs, person1, person2);
+                logsFilt.filter(function(log){
+                    return ;
+                });
+
+            }
+        });
+
 
 };
 

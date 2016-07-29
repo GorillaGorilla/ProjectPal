@@ -42,6 +42,21 @@ describe('Interaction controller unit tests:', function(){
         done();
     });
 
+    describe('sacrificial describe required for socket???',function(done){
+        beforeEach(function(done){
+            var f = function () {
+                createUserInDB(user, function(){
+                    createUserInDB(user2, function(){
+                        makeFriendship(user, user2, done)
+                    });
+                });
+            }();
+        });
+        it('should crash on before each for some reason', function(done){
+            done();
+        });
+    });
+
     describe('tests 2 friends:', function(){
         beforeEach(function(done){
 
@@ -66,10 +81,16 @@ describe('Interaction controller unit tests:', function(){
             var f = function () {
                 createUserInDB(user, function(){
                     createUserInDB(user2, function(){
-                        makeFriendship(user, user2, done)
+                        makeFriendship(user, user2, make3rdUserAndFriendship)
                     });
                 });
             }();
+
+            var make3rdUserAndFriendship = function () {
+                createUserInDB(user3, function(){
+                    makeFriendship(user, user3, done)
+                });
+            };
 
         });
 
@@ -241,46 +262,24 @@ describe('Interaction controller unit tests:', function(){
             var setUpLogs = function(){
                 //it is not required to use the route to set up the logs,
                 //could be changed to simply use the save method and should still work
-                agent.post('/signin')
-                    .send({"username" : user.username, "password" : user.password})
-                    .expect(302)
-                    .expect('Location','/')
-                    .end(function(err, res){
-                        should.not.exist(err);
-                        agent.post('/api/interactions')
-                            .send(log)
-                            .expect(200)
-                            .end(function(err, res){
-                                should.not.exist(err);
-                                agent.post('/api/interactions')
-                                    .send(log3)
-                                    .expect(200)
-                                    .end(function(err, res){
-                                        should.not.exist(err);
-                                        agent.post('/signin')
-                                            .send({"username": user2.username, "password": user2.password})
-                                            .end(function(err, res){
-                                                should.not.exist(err);
-                                                agent.post('/api/interactions')
-                                                    .send(log2)
-                                                    .expect(200)
-                                                    .end(function(err, res){
-                                                        should.not.exist(err);
-                                                        agent.get('/signout')
-                                                            .expect(302)
-                                                            .expect('Location','/')
-                                                            .end(function(err, res){
-                                                                should.not.exist(err);
-                                                                done();
-                                                            });
 
-                                                    });
-                                            });
-                                    });
-                            });
+                log.save(function(err) {
+                    if (err){console.log("save error; " + err)};
+                    should.not.exist(err);
+                    log2.save(function(err) {
+                        if (err){console.log("save error; " + err)};
+                        should.not.exist(err);
+                        log3.save(function(err) {
+                            if (err){console.log("save error; " + err)};
+                            should.not.exist(err);
+                            done();
+                        });
                     });
 
+                });
             };
+
+
 
         });
         it ('also should not crash during before each hook!',function(){
@@ -428,8 +427,9 @@ var acceptFriendRequest = function(user, user2, cb){
 
 var requestFriendship = function(u1,u2,cb){
     User.findOne({_id : u2.id}).exec(function(err, user){
-        should.not.exist(err);
-        //User.find().exec(function(err, user){
+
+        // User.find({}, function(err, users) {
+            should.not.exist(err);
         retrievedUser = user;
         retrievedUser.pendingFriends.push(u1.id);
         //    user.forEach(function(u){

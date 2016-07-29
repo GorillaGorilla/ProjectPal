@@ -57,6 +57,11 @@ module.exports = function(db) {
 
     app.use(express.static('./public'));
 
+    var port = (process.env.VCAP_APP_PORT || 'test-port');
+    var host = (process.env.VCAP_APP_HOST || 'test-host');
+
+    app.set('port', port);
+
     require('./socketio')(server, io, mongoStore);
     return server;
 };
