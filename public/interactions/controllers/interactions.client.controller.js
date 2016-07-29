@@ -86,7 +86,13 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
             }
 
             $scope.stats = Interactions.seeScores(reqObj, function(res){
+
                 $scope.stats = res;
+                $scope.data = [
+                    $scope.stats.userHistory,
+                    $scope.stats.friendHistory
+                ];
+
             });
         };
 
@@ -99,8 +105,8 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
 
 
         //chart stuff
-        $scope.labels = ["January", "February", "March", "April", "May", "June", "July"];
-        $scope.series = ['Series A', 'Series B'];
+        $scope.labels = ["-6", "-5", "-4", "-3", "-2", "-1", "Today"];
+        $scope.series = ['Personal Score', 'Friend Score'];
         $scope.data = [
             [65, 59, 80, 81, 56, 55, 40],
             [28, 48, 40, 19, 86, 27, 90]

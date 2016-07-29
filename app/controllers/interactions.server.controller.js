@@ -119,7 +119,7 @@ exports.getScore = function(req, res){
                         //change to work with miliseconds
                         console.log("log created: " + log.created);
                         console.log("(d.getDate()-(7-i): " + (d.getDate()-(7-i)));
-                        return log.created.getTime() < (d.getTime()-(7-i)*3600*1000*24);
+                        return log.created.getTime() < (d.getTime()-(6-i)*3600*1000*24);
                     }).filter(function(log){
                         return log.instigator.id === person1.id
                     })
