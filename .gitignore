@@ -18,7 +18,12 @@ $RECYCLE.BIN/
 *.lnk
 
 .idea/myworkspace.xml
-. idea/
+
+.idea/
+
+node_modules/
+
+public/lib/
 
 # =========================
 # Operating System Files
