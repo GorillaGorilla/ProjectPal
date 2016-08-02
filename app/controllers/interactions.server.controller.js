@@ -66,15 +66,9 @@ exports.returnLogs = function(req, res){
 };
 
 exports.scoreTwo = function(req, res, next){
-    var userBalance = 0;
-    var friendBalance = 0;
-    var userHistory = [];
-    var friendHistory = [];
-    var person1 = req.friend;
-    var person2 = req.friend2;
-    var d = new Date();
-    userHistory = Utils.calcScoreArray(req.interactions, req.friend);
-    friendHistory = req.friend2 ? Utils.calcScoreArray(req.interactions, req.friend2) : [];
+    var historyLength = req.query.time || 7;
+    var userHistory = Utils.calcScoreArray(req.interactions, req.friend, historyLength);
+    var friendHistory = req.friend2 ? Utils.calcScoreArray(req.interactions, req.friend2, historyLength) : [];
     res.json({
         userBalance: userHistory[userHistory.length-1] || 0,
         userHistory: userHistory,

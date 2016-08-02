@@ -340,6 +340,46 @@ describe('Interaction controller unit tests:', function(){
                         });
                 });
         });
+        it('should be able to return an historical score array of defined length 10',function(done){
+            agent.post('/signin')
+                .send({"username" : user2.username, "password" : user2.password})
+                .expect(302)
+                .expect('Location','/')
+                .end(function(err,res){
+                    should.not.exist(err);
+                    agent.get('/api/interactions/score/stats/' + user2.id + '/' + user.id + '/from/' + 10)
+                        .expect(200)
+                        .end(function(err,res){
+                            should.not.exist(err);
+                            res.body.userHistory.should.be.an.Array.and.have.length(10);
+                            var lastInd = res.body.userHistory.length - 1;
+                            res.body.userHistory[lastInd].should.equal(2);
+                            res.body.friendHistory.should.be.an.Array.and.have.length(10);
+                            res.body.friendHistory[lastInd].should.equal(-3);
+                            done();
+                        });
+                });
+        });
+        it('should be able to return an historical score array of defined length 25',function(done){
+            agent.post('/signin')
+                .send({"username" : user2.username, "password" : user2.password})
+                .expect(302)
+                .expect('Location','/')
+                .end(function(err,res){
+                    should.not.exist(err);
+                    agent.get('/api/interactions/score/stats/' + user2.id + '/' + user.id + '?time=25')
+                        .expect(200)
+                        .end(function(err,res){
+                            should.not.exist(err);
+                            res.body.userHistory.should.be.an.Array.and.have.length(25);
+                            var lastInd = res.body.userHistory.length - 1;
+                            res.body.userHistory[lastInd].should.equal(2);
+                            res.body.friendHistory.should.be.an.Array.and.have.length(25);
+                            res.body.friendHistory[lastInd].should.equal(-3);
+                            done();
+                        });
+                });
+        });
 
 
         it('should not be able to return scores if the user isn\'t logged in',function(done){

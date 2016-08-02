@@ -30,7 +30,7 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
 
             var interaction = new Interactions(interObj);
             interaction.$save(function(response) {
-                $location.path('/interactions');
+                $location.path('/');
             }, function(errorResponse) {
                 console.log("err: " + errorResponse)
                 $scope.error = errorResponse.data.message;
@@ -75,24 +75,34 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
         };
 
         $scope.getScore = function(){
-            var reqObj = {friendId: $scope.authentication.user.id};
+            var reqObj = {friendId: $scope.authentication.user.id,
+            time: 30};
             if($routeParams.friendId){
                 reqObj = {friendId: $scope.authentication.user.id,
-                    friend2Id: $routeParams.friendId};
+                    friend2Id: $routeParams.friendId,
+                    time: 30};
             }
 
             if($routeParams.friend2Id){
                 reqObj = {friendId: $routeParams.friendId,
-                    friend2Id: $routeParams.friend2Id};
+                    friend2Id: $routeParams.friend2Id,
+                    time: 30};
             }
 
             $scope.stats = Interactions.seeScores(reqObj, function(res){
-
                 $scope.stats = res;
+                console.log(JSON.stringify($scope.stats))
                 $scope.data = [
                     $scope.stats.userHistory,
                     $scope.stats.friendHistory
                 ];
+                $scope.labels = $scope.stats.userHistory.map(function(el, i){
+                    if (i === $scope.stats.userHistory.length -1){
+                        return el = "Today";
+                    }else{
+                        return el = (i - $scope.stats.userHistory.length +1 );
+                    }
+                });
 
             });
         };
@@ -101,7 +111,8 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
 
         $scope.openFriendLink = function(log){
             console.log('openFriendLink clicked');
-            $location.path('/interactions/' + log.instigator.id + '/show/' + log.target.id );
+            var uId2 = log.instigator.id === $scope.authentication.user.id ? log.target.id : log.instigator.id;
+            $location.path('/interactions/' + $scope.authentication.user.id + '/show/' + uId2 );
         };
 
 
