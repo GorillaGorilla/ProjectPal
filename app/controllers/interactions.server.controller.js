@@ -34,27 +34,8 @@ var getErrorMessage = function(err) {
     }
 };
 
-exports.list = function(req, res){
-    Interaction.find()
-        .populate('target','username firstName lastName fullName')
-        .populate('instigator','username firstName lastName fullName')
-        .exec(function(err, logs){
-        if (err) {
-            console.log("list err: " + err);
-            return res.send(err);
-        } else {
-            //console.log("logs before filter: " + JSON.stringify(logs));
-            var logsfilt = Utils.filterForRelevance(logs, req.user, req.friend);
-            logsfilt.sort(function(a,b){
-                return (b.created.getTime() - a.created.getTime())
-            });
-            res.json(logsfilt);
-        }
-    });
-};
 
-exports.listFriendLogs = function(req, res){
-    console.log("list friend log called");
+exports.listLogs = function(req, res, next){
     Interaction.find()
         .populate('target','username firstName lastName fullName')
         .populate('instigator','username firstName lastName fullName')
@@ -70,119 +51,36 @@ exports.listFriendLogs = function(req, res){
                 logsfilt.sort(function(a,b){
                     return (b.created.getTime() - a.created.getTime())
                 });
-
-                res.json(logsfilt);
+                req.interactions = logsfilt;
+                next();
             }
         });
 };
 
-
-
-exports.getScore = function(req, res){
-    Interaction.find()
-        .populate('target','username firstName lastName fullName')
-        .populate('instigator','username firstName lastName fullName')
-        .exec(function(err,logs){
-        if (err) {
-            console.log("list err: " + err);
-            return res.send(err);
-        } else {
-            var person1 = (!req.friend2) ? req.user : req.friend;
-            var person2 = req.friend2 || req.friend;
-            var logsFilt = Utils.filterForRelevance(logs, person1, person2);
-            var userBalance = 0;
-            var friendBalance = 0;
-            var userHistory = [];
-            var friendHistory = [];
-            logsFilt
-                .filter(function(log){
-                    return log.instigator.id === person1.id
-                })
-                .forEach(function(a){
-                        userBalance = userBalance + a.level;
-            });
-            if (person2){
-                logsFilt
-                    .filter(function(log){
-                        return log.instigator.id === person2.id
-                    })
-                    .forEach(function(a){
-                        friendBalance = friendBalance + a.level;
-                    });
-            }
-
-            var d = new Date();
-            for (var i = 0; i < 7; i++){
-                var histBalance = 0
-
-                    logsFilt.filter(function(log){
-                        //change to work with miliseconds
-                        console.log("log created: " + log.created);
-                        console.log("(d.getDate()-(7-i): " + (d.getDate()-(7-i)));
-                        return log.created.getTime() < (d.getTime()-(6-i)*3600*1000*24);
-                    }).filter(function(log){
-                        return log.instigator.id === person1.id
-                    })
-                        .forEach(function(a){
-                            histBalance = histBalance + a.level;
-                        });
-                console.log("histBalance: " + histBalance);
-                userHistory[i] = histBalance;
-            };
-
-            if (person2){
-                for (var i = 0; i < 7; i++){
-                    var histBalance = 0
-
-                    logsFilt.filter(function(log){
-                        //change to work with miliseconds
-                        console.log("log created: " + log.created);
-                        console.log("(d.getDate()-(7-i): " + (d.getDate()-(7-i)));
-                        return log.created.getTime() < (d.getTime()-(7-i)*3600*1000*24);
-                    }).filter(function(log){
-                        return log.instigator.id === person2.id
-                    })
-                        .forEach(function(a){
-                            histBalance = histBalance + a.level;
-                        });
-                    console.log("histBalance: " + histBalance);
-                    friendHistory[i] = histBalance;
-                };
-            };
-
-
-
-            res.json({
-                userBalance: userBalance,
-                userHistory: userHistory,
-                friendBalance: friendBalance,
-                friendHistory: friendHistory
-            });
-        }
-    });
+exports.returnLogs = function(req, res){
+    if (req.interactions){
+        res.json(req.interactions)
+    }else{
+        res.send(err);
+    }
 };
 
 exports.scoreTwo = function(req, res, next){
-    Interaction.find()
-        .populate('target','username firstName lastName fullName')
-        .populate('instigator','username firstName lastName fullName')
-        .exec(function(err,logs) {
-            if (err) {
-                console.log("list err: " + err);
-                return res.send(err);
-            } else {
-                var person1 = (!req.friend2) ? req.user : req.friend;
-                var person2 = req.friend2 || req.friend;
-                var logsFilt = Utils.filterForRelevance(logs, person1, person2);
-                // logsFilt.filter(function(log){
-                //     return ;
-                // });
-                res.json([]);
-
-            }
-        });
-
-
+    var userBalance = 0;
+    var friendBalance = 0;
+    var userHistory = [];
+    var friendHistory = [];
+    var person1 = req.friend;
+    var person2 = req.friend2;
+    var d = new Date();
+    userHistory = Utils.calcScoreArray(req.interactions, req.friend);
+    friendHistory = req.friend2 ? Utils.calcScoreArray(req.interactions, req.friend2) : [];
+    res.json({
+        userBalance: userHistory[userHistory.length-1] || 0,
+        userHistory: userHistory,
+        friendBalance: friendHistory[userHistory.length-1] || 0,
+        friendHistory: friendHistory
+    });
 };
 
 exports.interactionByID = function(req, res, next, id) {

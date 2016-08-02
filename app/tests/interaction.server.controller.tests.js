@@ -187,7 +187,7 @@ describe('Interaction controller unit tests:', function(){
             //});
 
             it('should be able to return a score object', function(done){
-                agent.get('/api/interactions/score/stats')
+                agent.get('/api/interactions/score/stats/' + user2.id)
                     .expect(200)
                     .end(function(err, res){
                         should.not.exist(err);
@@ -196,7 +196,7 @@ describe('Interaction controller unit tests:', function(){
                     });
             });
             it('should be able to return a score object with correct value of userBalance', function(done){
-                agent.get('/api/interactions/score/stats')
+                agent.get('/api/interactions/score/stats/' + user2.id)
                     .expect(200)
                     .end(function(err, res){
                         should.not.exist(err);
@@ -207,7 +207,7 @@ describe('Interaction controller unit tests:', function(){
 
             it('should be able to return a score object with correct value of userBalance and friendBalance', function(done){
 
-                agent.get('/api/interactions/score/stats/' + user.id)
+                agent.get('/api/interactions/score/stats/' + user2.id + '/' + user.id)
                     .expect(200)
                     .end(function(err, res){
                         should.not.exist(err);
@@ -310,7 +310,7 @@ describe('Interaction controller unit tests:', function(){
                 .expect(302)
                 .expect('Location', '/')
                 .end(function(err, res){
-                    agent.get('/api/interactions/score/stats/' + user.id)
+                    agent.get('/api/interactions/score/stats/' + user2.id + '/' + user.id)
                         .expect(200)
                         .end(function(err, res){
                             should.not.exist(err);
@@ -328,7 +328,7 @@ describe('Interaction controller unit tests:', function(){
                 .expect('Location','/')
                 .end(function(err,res){
                     should.not.exist(err);
-                    agent.get('/api/interactions/score/stats/' + user.id)
+                    agent.get('/api/interactions/score/stats/' + user2.id + '/' + user.id)
                         .expect(200)
                         .end(function(err,res){
                             should.not.exist(err);
@@ -347,7 +347,7 @@ describe('Interaction controller unit tests:', function(){
                 .expect(302)
                 .expect('Location','/')
                 .end(function(err, res){
-                    agent.get('/api/interactions/score/stats/' + user.id)
+                    agent.get('/api/interactions/score/stats/' + user2.id)
                         .expect(401)
                         .end(function(err, res){
                             should.not.exist(err);

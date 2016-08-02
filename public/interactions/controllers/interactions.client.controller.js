@@ -75,9 +75,10 @@ angular.module('interactions').controller('InteractionsController', ['$scope',
         };
 
         $scope.getScore = function(){
-            var reqObj = {};
+            var reqObj = {friendId: $scope.authentication.user.id};
             if($routeParams.friendId){
-                reqObj = {friendId: $routeParams.friendId};;
+                reqObj = {friendId: $scope.authentication.user.id,
+                    friend2Id: $routeParams.friendId};
             }
 
             if($routeParams.friend2Id){
