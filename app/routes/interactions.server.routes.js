@@ -9,7 +9,6 @@ module.exports = function(app) {
         //.get(users.requiresLogin, interactions.list)
         .post(users.requiresLogin, interactions.create);
     app.route('/api/interactions/:interactionId');
-    
         //.get(interactions.read);
     //    .put(users.requiresLogin, interactions.hasAuthorization, interactions.update)
     //    .delete(users.requiresLogin, interactions.hasAuthorization, interactions.delete);

@@ -347,7 +347,7 @@ describe('Interaction controller unit tests:', function(){
                 .expect('Location','/')
                 .end(function(err,res){
                     should.not.exist(err);
-                    agent.get('/api/interactions/score/stats/' + user2.id + '/' + user.id + '/from/' + 10)
+                    agent.get('/api/interactions/score/stats/' + user2.id + '/' + user.id + '?time=' + 10)
                         .expect(200)
                         .end(function(err,res){
                             should.not.exist(err);

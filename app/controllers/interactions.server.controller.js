@@ -59,8 +59,9 @@ exports.listLogs = function(req, res, next){
 
 exports.returnLogs = function(req, res){
     if (req.interactions){
-        res.json(req.interactions)
+        res.json(req.interactions);
     }else{
+        var err = "no working";
         res.send(err);
     }
 };
