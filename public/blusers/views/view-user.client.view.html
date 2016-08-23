@@ -12,13 +12,13 @@
     <div data-ng-controller="FriendsController">
         <h1 data-ng-bind="user.fullName"></h1>
         <div data-ng-show="authentication.user._id !== user._id && authentication.user.friends.indexOf(user._id) === -1">
-        <br>
+        <br />
         <div ng-show="user.pendingFriends.indexOf(authentication.user._id) === -1">
             <button type="button"  ng-click="add(authentication.user,user)" >Add</button>
         </div>
         </div>
     </div>
-    <div data-ng-show="authentication.user.friends.indexOf(user._id) !== -1">Already a friend. Put view history here</div>
+    <div data-ng-show="authentication.user.friends.indexOf(user._id) !== -1"> Already a friend. Put view history here</div>
     <small>
         <em>Joined on </em>
         <em data-ng-bind="user.created | date:'mediumDate'"></em>

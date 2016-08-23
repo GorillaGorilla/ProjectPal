@@ -58,3 +58,24 @@ exports.hideNames = function(logs, userObj){
     return logs;
 };
 
+exports.calcScoreArray = function(logs, userObj, histLength){
+    var d = new Date();
+    var result = [];
+    for (var i = 0; i < histLength; i++){
+        var histBalance = 0
+        logs.filter(function(log){
+            //change to work with miliseconds
+            // console.log("log created: " + log.created);
+            // console.log("(d.getDate()-(7-i): " + (d.getDate()-(7-i)));
+            return log.created.getTime() < (d.getTime()-(histLength-1-i)*3600*1000*24);
+        }).filter(function(log){
+            return log.instigator.id === userObj.id
+        })
+            .forEach(function(a){
+                histBalance = histBalance + a.level;
+            });
+        result[i] = histBalance;
+    };
+    return result;
+};
+

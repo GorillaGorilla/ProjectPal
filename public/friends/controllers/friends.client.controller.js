@@ -41,12 +41,13 @@ angular.module('friends').controller('FriendsController', ['$scope',
 
 
         $scope.add = function(user, friend){
+            console.log("add called");
+            console.log(friend.username);
             var user = user || $scope.authentication.user
             if (friend.pendingFriends.indexOf(user._id) === -1){
                 friend.pendingFriends.push(user._id);
-                console.log("friend pushed " + JSON.stringify(friend));  // has something in friend array
                 friend.$update(function() {
-                    console.log("afterUpdate " + JSON.stringify(friend));  //no longer has anything in friend array...
+                    // console.log("afterUpdate " + JSON.stringify(friend));  //no longer has anything in friend array...
                     $location.path('/');
                 }, function(errorResponse) {
                     $scope.error = errorResponse.data.message;
@@ -55,6 +56,7 @@ angular.module('friends').controller('FriendsController', ['$scope',
 
 
         };
+
 
     }]
 

@@ -29,6 +29,7 @@ exports.list = function(req, res, next){
 };
 
 exports.read = function(req, res){
+    console.log("userBy Id req.user " + req.user);
     res.json(req.user);
 };
 
@@ -37,7 +38,7 @@ exports.userByID = function (req, res, next, id) {
     //this function finds the user by the url id and replaced req.user with this. req.body doesn't change.
     //console.log("userByID: " + id);
     //console.log("userById req.body before: " + JSON.stringify(req.body));
-    //console.log("userBy Id req.user " + req.user);
+
     User.findOne({_id: id}, function(err,user){
         if (err) {
             return next(err);
@@ -67,8 +68,8 @@ exports.add = function (req, res, next){
 
 
 exports.update = function(req, res, next){
-    //console.log("update req.body: " + JSON.stringify(req.body));
-    //console.log("update req.user: " + req.user);
+    delete req.body.$promise;
+    delete req.body.$resolved; // because property was breaking mongoose
     User.findByIdAndUpdate(req.user.id, req.body, function(err, user){
         if (err) {
             return next(err);

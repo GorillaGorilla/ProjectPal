@@ -12,6 +12,8 @@ angular.module('users').controller('UsersController', ['$scope',
         $scope.findOne = function() {
             $scope.user = Users.get({
                 userId: $routeParams.userId
+            }, function(){
+                console.log("scope.user: " + $scope.user);
             });
         };
         $scope.update = function() {

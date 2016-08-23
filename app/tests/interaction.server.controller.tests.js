@@ -9,7 +9,7 @@ var app = require('../../server'),
     User = mongoose.model('User'),
     Interaction = mongoose.model('Interaction');
 
-var user, user2, user3, retrievedUser, log, log2, log3,
+var user, user2, user3, retrievedUser, log, log2, log3,log4,log5,
     agent = request.agent(app);
 
 describe('Interaction controller unit tests:', function(){
@@ -42,6 +42,21 @@ describe('Interaction controller unit tests:', function(){
         done();
     });
 
+    describe('sacrificial describe required for socket???',function(done){
+        beforeEach(function(done){
+            var f = function () {
+                createUserInDB(user, function(){
+                    createUserInDB(user2, function(){
+                        makeFriendship(user, user2, done)
+                    });
+                });
+            }();
+        });
+        it('should crash on before each for some reason', function(done){
+            done();
+        });
+    });
+
     describe('tests 2 friends:', function(){
         beforeEach(function(done){
 
@@ -66,10 +81,16 @@ describe('Interaction controller unit tests:', function(){
             var f = function () {
                 createUserInDB(user, function(){
                     createUserInDB(user2, function(){
-                        makeFriendship(user, user2, done)
+                        makeFriendship(user, user2, make3rdUserAndFriendship)
                     });
                 });
             }();
+
+            var make3rdUserAndFriendship = function () {
+                createUserInDB(user3, function(){
+                    makeFriendship(user, user3, done)
+                });
+            };
 
         });
 
@@ -166,7 +187,7 @@ describe('Interaction controller unit tests:', function(){
             //});
 
             it('should be able to return a score object', function(done){
-                agent.get('/api/interactions/score/stats')
+                agent.get('/api/interactions/score/stats/' + user2.id)
                     .expect(200)
                     .end(function(err, res){
                         should.not.exist(err);
@@ -175,7 +196,7 @@ describe('Interaction controller unit tests:', function(){
                     });
             });
             it('should be able to return a score object with correct value of userBalance', function(done){
-                agent.get('/api/interactions/score/stats')
+                agent.get('/api/interactions/score/stats/' + user2.id)
                     .expect(200)
                     .end(function(err, res){
                         should.not.exist(err);
@@ -186,7 +207,7 @@ describe('Interaction controller unit tests:', function(){
 
             it('should be able to return a score object with correct value of userBalance and friendBalance', function(done){
 
-                agent.get('/api/interactions/score/stats/' + user.id)
+                agent.get('/api/interactions/score/stats/' + user2.id + '/' + user.id)
                     .expect(200)
                     .end(function(err, res){
                         should.not.exist(err);
@@ -203,25 +224,40 @@ describe('Interaction controller unit tests:', function(){
 
         beforeEach(function (done) {
             //console.log("beforeEach2");
+            var date = new Date();
+            var d = new Date();
+            date.setDate(d.getDate()- 6);
             log = new Interaction({
                 instigator: user2.id,
                 target: user.id,
                 description: "this is a test log between 1st and 2nd user",
-                level: 1
+                level: 1,
+                created: date.getTime()
             });
+            date.setDate(d.getDate()- 3);
 
             log2 = new Interaction({
                 instigator: user.id,
                 target: user2.id,
                 description: "this is a test log between 2nd and 1st user",
-                level: -3
+                level: -3,
+                created: date.getTime()
             });
-
+            date.setDate(d.getDate()- 2);
             log3 = new Interaction({
                 instigator: user3.id,
                 target: user.id,
                 description: "this is a test log between 1st and 3rd user",
-                level: 3
+                level: 3,
+                created: date.getTime()
+            });
+            date.setDate(d.getDate()- 2);
+            log4 = new Interaction({
+                instigator: user2.id,
+                target: user.id,
+                description: "this is a test log between 1st and 3rd user",
+                level: 1,
+                created: date.getTime()
             });
 
             var f = function () {
@@ -241,46 +277,27 @@ describe('Interaction controller unit tests:', function(){
             var setUpLogs = function(){
                 //it is not required to use the route to set up the logs,
                 //could be changed to simply use the save method and should still work
-                agent.post('/signin')
-                    .send({"username" : user.username, "password" : user.password})
-                    .expect(302)
-                    .expect('Location','/')
-                    .end(function(err, res){
+
+                log.save(function(err) {
+                    if (err){console.log("save error; " + err)};
+                    should.not.exist(err);
+                    log2.save(function(err) {
+                        if (err){console.log("save error; " + err)};
                         should.not.exist(err);
-                        agent.post('/api/interactions')
-                            .send(log)
-                            .expect(200)
-                            .end(function(err, res){
+                        log3.save(function(err) {
+                            if (err){console.log("save error; " + err)};
+                            should.not.exist(err);
+                            log4.save(function(err) {
+                                if (err){console.log("save error; " + err)};
                                 should.not.exist(err);
-                                agent.post('/api/interactions')
-                                    .send(log3)
-                                    .expect(200)
-                                    .end(function(err, res){
-                                        should.not.exist(err);
-                                        agent.post('/signin')
-                                            .send({"username": user2.username, "password": user2.password})
-                                            .end(function(err, res){
-                                                should.not.exist(err);
-                                                agent.post('/api/interactions')
-                                                    .send(log2)
-                                                    .expect(200)
-                                                    .end(function(err, res){
-                                                        should.not.exist(err);
-                                                        agent.get('/signout')
-                                                            .expect(302)
-                                                            .expect('Location','/')
-                                                            .end(function(err, res){
-                                                                should.not.exist(err);
-                                                                done();
-                                                            });
-
-                                                    });
-                                            });
-                                    });
+                                done();
                             });
+                        });
                     });
-
+                });
             };
+
+
 
         });
         it ('also should not crash during before each hook!',function(){
@@ -293,23 +310,84 @@ describe('Interaction controller unit tests:', function(){
                 .expect(302)
                 .expect('Location', '/')
                 .end(function(err, res){
-                    agent.get('/api/interactions/score/stats/' + user.id)
+                    agent.get('/api/interactions/score/stats/' + user2.id + '/' + user.id)
                         .expect(200)
                         .end(function(err, res){
                             should.not.exist(err);
-                            res.body.should.be.an.Object.and.have.property('userBalance',1);
+                            res.body.should.be.an.Object.and.have.property('userBalance',2);
                             res.body.should.be.an.Object.and.have.property('friendBalance',-3);
                             done();
                         });
                 });
         });
 
+        it('should be able to return an array of cummulative score per day',function(done){
+            agent.post('/signin')
+                .send({"username" : user2.username, "password" : user2.password})
+                .expect(302)
+                .expect('Location','/')
+                .end(function(err,res){
+                    should.not.exist(err);
+                    agent.get('/api/interactions/score/stats/' + user2.id + '/' + user.id)
+                        .expect(200)
+                        .end(function(err,res){
+                            should.not.exist(err);
+                            res.body.userHistory.should.be.an.Array.and.have.length(7);
+                            res.body.userHistory[6].should.equal(2);
+                            res.body.friendHistory.should.be.an.Array.and.have.length(7);
+                            res.body.friendHistory[6].should.equal(-3);
+                            done();
+                        });
+                });
+        });
+        it('should be able to return an historical score array of defined length 10',function(done){
+            agent.post('/signin')
+                .send({"username" : user2.username, "password" : user2.password})
+                .expect(302)
+                .expect('Location','/')
+                .end(function(err,res){
+                    should.not.exist(err);
+                    agent.get('/api/interactions/score/stats/' + user2.id + '/' + user.id + '?time=' + 10)
+                        .expect(200)
+                        .end(function(err,res){
+                            should.not.exist(err);
+                            res.body.userHistory.should.be.an.Array.and.have.length(10);
+                            var lastInd = res.body.userHistory.length - 1;
+                            res.body.userHistory[lastInd].should.equal(2);
+                            res.body.friendHistory.should.be.an.Array.and.have.length(10);
+                            res.body.friendHistory[lastInd].should.equal(-3);
+                            done();
+                        });
+                });
+        });
+        it('should be able to return an historical score array of defined length 25',function(done){
+            agent.post('/signin')
+                .send({"username" : user2.username, "password" : user2.password})
+                .expect(302)
+                .expect('Location','/')
+                .end(function(err,res){
+                    should.not.exist(err);
+                    agent.get('/api/interactions/score/stats/' + user2.id + '/' + user.id + '?time=25')
+                        .expect(200)
+                        .end(function(err,res){
+                            should.not.exist(err);
+                            res.body.userHistory.should.be.an.Array.and.have.length(25);
+                            var lastInd = res.body.userHistory.length - 1;
+                            res.body.userHistory[lastInd].should.equal(2);
+                            res.body.friendHistory.should.be.an.Array.and.have.length(25);
+                            res.body.friendHistory[lastInd].should.equal(-3);
+                            done();
+                        });
+                });
+        });
+
+
         it('should not be able to return scores if the user isn\'t logged in',function(done){
             agent.get('/signout')
                 .expect(302)
                 .expect('Location','/')
                 .end(function(err, res){
-                    agent.get('/api/interactions/score/stats/' + user.id)
+                    agent.get('/api/interactions/score/stats/' + user2.id)
                         .expect(401)
                         .end(function(err, res){
                             should.not.exist(err);
@@ -328,7 +406,7 @@ describe('Interaction controller unit tests:', function(){
                         .expect(200)
                         .end(function(err, res){
                             should.not.exist(err);
-                            res.body.should.be.an.Array.and.have.length(2);
+                            res.body.should.be.an.Array.and.have.length(3);
                             done();
                         });
                 });
@@ -345,7 +423,7 @@ describe('Interaction controller unit tests:', function(){
                         .expect(200)
                         .end(function(err, res){
                             should.not.exist(err);
-                            res.body.should.be.an.Array.and.have.length(2);
+                            res.body.should.be.an.Array.and.have.length(3);
                             res.body[0].should.be.an.Object;
                             done();
                         });
@@ -362,7 +440,7 @@ describe('Interaction controller unit tests:', function(){
                         .expect(200)
                         .end(function(err, res){
                             should.not.exist(err);
-                            res.body.should.be.an.Array.and.have.length(2);
+                            res.body.should.be.an.Array.and.have.length(3);
                             //console.log("log.id: " + log.id);
                             var index = res.body.map(function(el) {
                                 return el._id;
@@ -428,8 +506,9 @@ var acceptFriendRequest = function(user, user2, cb){
 
 var requestFriendship = function(u1,u2,cb){
     User.findOne({_id : u2.id}).exec(function(err, user){
-        should.not.exist(err);
-        //User.find().exec(function(err, user){
+
+        // User.find({}, function(err, users) {
+            should.not.exist(err);
         retrievedUser = user;
         retrievedUser.pendingFriends.push(u1.id);
         //    user.forEach(function(u){
