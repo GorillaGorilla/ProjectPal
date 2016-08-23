@@ -6,6 +6,8 @@ var mongoose = require("mongoose"),
     Interaction = mongoose.model('Interaction'),
     Utils = require('../controllers/utils2');
 
+
+
 exports.create = function(req, res) {
     //console.log("create interaction body: " + JSON.stringify(req.body) + '\n');
 
@@ -18,7 +20,15 @@ exports.create = function(req, res) {
                 message: getErrorMessage(err)
             });
         } else {
-            res.json(interaction);
+            Interaction.findById(interaction.id).populate('creator', 'firstName lastName fullName')
+                .populate('target', 'username firstName lastName fullName email')
+                .populate('instigator', 'username firstName lastName fullName email')
+                .exec(function(err, interaction) {
+                    if (err){ return next(err)};
+                    Utils.sendMail(interaction);
+                    res.json(interaction);
+                });
+
         }
     });
 };
