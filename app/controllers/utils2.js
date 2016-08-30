@@ -83,10 +83,8 @@ exports.sendMail = function(log){
     var nodemailer = require('nodemailer');
 
 // create reusable transporter object using the default SMTP transport
-    console.log("log: " + log);
-
     var transporter = nodemailer.createTransport('smtps://palanalst@gmail.com:89Palbert@smtp.gmail.com'),
-        msgText = log.creator.firstName+ " logged that you " + log.description + "!",
+        msgText = log.creator.firstName + " logged that you " + log.description + "!",
         subjectLine = "",
         recipient = log.instigator.email;
 
@@ -96,13 +94,12 @@ exports.sendMail = function(log){
         subjectLine = "You were a good pal to " + log.target.username + "!"
     }
 
-// setup e-mail data with unicode symbols
     var mailOptions = {
-        from: '"Pally 👥" <donotreply@stuart.com>', // sender address
-        to: recipient, // list of receivers
-        subject: subjectLine, // Subject line
-        text: msgText, // plaintext body
-        html: '<b>' + msgText +'</b>' // html body
+        from: '"Pally 👥" <donotreply@stuart.com>',
+        to: recipient,
+        subject: subjectLine,
+        text: msgText,
+        html: '<b>' + msgText +'</b>'
     };
 
 // send mail with defined transport object
