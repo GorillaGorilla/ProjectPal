@@ -42,20 +42,20 @@ describe('Interaction controller unit tests:', function(){
         done();
     });
 
-    describe('sacrificial describe required for socket???',function(done){
-        beforeEach(function(done){
-            (function () {
-                createUserInDB(user, function(){
-                    createUserInDB(user2, function(){
-                        dummyFunction(user, user2, done)
-                    });
-                });
-            })();
-        });
-        it('should crash on before each for some reason', function(done){
-            done();
-        });
-    });
+    // describe('sacrificial describe required for socket???',function(done){
+    //     beforeEach(function(done){
+    //         (function () {
+    //             createUserInDB(user, function(){
+    //                 createUserInDB(user2, function(){
+    //                     dummyFunction(user, user2, done)
+    //                 });
+    //             });
+    //         })();
+    //     });
+    //     it('should crash on before each for some reason', function(done){
+    //         done();
+    //     });
+    // });
 
     describe('tests 2 friends:', function(){
         beforeEach(function(done){

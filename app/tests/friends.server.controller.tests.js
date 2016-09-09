@@ -33,24 +33,24 @@ describe('Friends Controller Unit Tests:', function() {
         create2Users(user, user2, done);
     });
 
-    describe('Sacrificial describe', function() {
-        it('Should be able to send a friend request and fail first time', function(done){
-            //console.log("user2 send: " + JSON.stringify(user2));
-            user2.pendingFriends.push(user.id);
-            var route = '/api/users/' + user2.id;
-            delete user2.password;
-            agent.put(route)
-                .send(user2)
-                .set('Accept','application/json')
-                .expect(200)
-                .end(function(err,res){
-                    if (err){console.log("add friend err: " + err);}
-                    //console.log("add friend res.body" + JSON.stringify(res.body));
-                    should.exist(err);
-                    done();
-                });
-        });
-    });
+    // describe('Sacrificial describe', function() {
+    //     it('Should be able to send a friend request and fail first time', function(done){
+    //         //console.log("user2 send: " + JSON.stringify(user2));
+    //         user2.pendingFriends.push(user.id);
+    //         var route = '/api/users/' + user2.id;
+    //         delete user2.password;
+    //         agent.put(route)
+    //             .send(user2)
+    //             .set('Accept','application/json')
+    //             .expect(200)
+    //             .end(function(err,res){
+    //                 if (err){console.log("add friend err: " + err);}
+    //                 //console.log("add friend res.body" + JSON.stringify(res.body));
+    //                 should.exist(err);
+    //                 done();
+    //             });
+    //     });
+    // });
 
     describe('Testing making a friend request', function() {
         it('Should be able to send a friend request', function(done){

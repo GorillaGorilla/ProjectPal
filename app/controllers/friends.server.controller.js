@@ -21,6 +21,8 @@ exports.add = function(req, res) {
 
 };
 
+
+
 exports.accept = function(req,res){
     // adds user to the friends friend array, and friend to the user's friend array. deleted friend from
     // user's pending list

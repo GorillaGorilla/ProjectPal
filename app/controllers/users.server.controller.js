@@ -29,21 +29,24 @@ exports.list = function(req, res, next){
 };
 
 exports.read = function(req, res){
-    console.log("userBy Id req.user " + req.user);
-    res.json(req.user);
+    console.log("userBy Id req.targetUser " + req.targetUser);
+    res.json(req.targetUser);
 };
 
 exports.userByID = function (req, res, next, id) {
-    //req.user contains the current;ly logged in user, req.body contains the request contents (also a user).
-    //this function finds the user by the url id and replaced req.user with this. req.body doesn't change.
+    //req.targetUser contains the current;ly logged in user, req.body contains the request contents (also a user).
+    //this function finds the user by the url id and replaced req.targetUser with this. req.body doesn't change.
     //console.log("userByID: " + id);
     //console.log("userById req.body before: " + JSON.stringify(req.body));
 
-    User.findOne({_id: id}, function(err,user){
+    console.log('$$$', id);
+    User.findOne({_id: id}, function(err, user){
         if (err) {
             return next(err);
-        }else {
-            req.user = user;
+        } else {
+            req.targetUser = user;
+            console.log('$$$', req.targetUser);
+
             next();
         }
     });
@@ -52,7 +55,7 @@ exports.userByID = function (req, res, next, id) {
 
 exports.add = function (req, res, next){
     //not currently in use...
-    var user = req.user;
+    var user = req.targetUser;
     var id = req.body.userID;
     console.log("req.body: " + JSON.stringify(req.body));
     user.update(function(err) {
@@ -70,7 +73,7 @@ exports.add = function (req, res, next){
 exports.update = function(req, res, next){
     delete req.body.$promise;
     delete req.body.$resolved; // because property was breaking mongoose
-    User.findByIdAndUpdate(req.user.id, req.body, function(err, user){
+    User.findByIdAndUpdate(req.targetUser.id, req.body, function(err, user){
         if (err) {
             return next(err);
         } else {
@@ -80,11 +83,11 @@ exports.update = function(req, res, next){
 };
 
 exports.delete = function(req, res, next){
-    req.user.remove(function(err){
+    req.targetUser.remove(function(err){
         if (err) {
             return next(err);
         } else {
-            res.json(req.user);
+            res.json(req.targetUser);
         }
     })
 };
@@ -110,7 +113,7 @@ var getErrorMessage = function(err) {
 };
 
 exports.renderSignin = function(req, res, next) {
-    if (!req.user) {
+    if (!req.targetUser) {
         res.render('signin', {
             title: 'Sign-in Form',
             messages: req.flash('error') || req.flash('info')
@@ -120,7 +123,7 @@ exports.renderSignin = function(req, res, next) {
     }
 };
 exports.renderSignup = function(req, res, next) {
-    if (!req.user) {
+    if (!req.targetUser) {
         res.render('signup', {
             title: 'Sign-up Form',
             messages: req.flash('error')
@@ -130,7 +133,7 @@ exports.renderSignup = function(req, res, next) {
     }
 };
 exports.signup = function(req, res, next) {
-    if (!req.user) {
+    if (!req.targetUser) {
         var user = new User(req.body);
         var message = null;
         user.provider = 'local';
@@ -157,12 +160,13 @@ exports.signout = function(req, res) {
 exports.updateLastSignin = function(req, res, next){
     console.log("update signing called")
     var date = new Date();
-    User.findByIdAndUpdate(req.user.id, {lastLogin: date.now()}, function(err, user){
+    User.findByIdAndUpdate(req.targetUser.id, {lastLogin: date.now()}, function(err, user){
         next();
     });
 };
 
 exports.requiresLogin = function(req, res, next) {
+    console.log('****', req.session, req.user, req.targetUser);
     if (!req.isAuthenticated()) {
         return res.status(401).send({
             message: 'User is not logged in'

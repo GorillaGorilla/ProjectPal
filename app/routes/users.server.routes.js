@@ -12,6 +12,9 @@ module.exports = function(app) {
         .put(users.update)
         .delete(users.delete);
 
+
+    app.param('userId', users.userByID);
+
     app.route('/api/users')
         .get(users.list);
     app.route('/api/users/:userId')
@@ -36,7 +39,5 @@ module.exports = function(app) {
         }),users.updateLastSignin);
 
     app.get('/signout', users.signout);
-
-    app.param('userId', users.userByID);
     //app.param('friendId', users.friendByID);
 };
