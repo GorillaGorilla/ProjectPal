@@ -12,20 +12,29 @@ var config = require('./config'),
     MongoStore = require('connect-mongo')(session),
     flash = require('connect-flash'),
     methodOverride = require('method-override'),
-    passport = require('passport'),
-    middleware = require("./transportsecurity");
+    passport = require('passport')
+    // ,
+    // middleware = require("./transportsecurity")
+    ;
 
 module.exports = function(db) {
     var app = express();
     var server = http.createServer(app);
     var io = socketio.listen(server);
 
+    function requireHTTPS(req, res, next) {
+        if (req.headers && req.headers.$wssp === "80") {
+            return res.redirect('https://' + req.get('host') + req.url);
+        }
+        next();
+    };
+
 
     if (process.env.NODE_ENV === 'development'){
         app.use(morgan('dev'));
     }else if (process.env.NODE_ENV === 'production') {
         app.use(compress());
-        app.use(middleware.transportSecurity());
+        app.use(requireHTTPS);
     }
     app.use(bodyParser.urlencoded({
         extended: true
