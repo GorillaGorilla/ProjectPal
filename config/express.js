@@ -12,7 +12,8 @@ var config = require('./config'),
     MongoStore = require('connect-mongo')(session),
     flash = require('connect-flash'),
     methodOverride = require('method-override'),
-    passport = require('passport');
+    passport = require('passport'),
+    middleware = require("./transportsecurity");
 
 module.exports = function(db) {
     var app = express();
@@ -24,6 +25,7 @@ module.exports = function(db) {
         app.use(morgan('dev'));
     }else if (process.env.NODE_ENV === 'production') {
         app.use(compress());
+        app.use(middleware.transportSecurity());
     }
     app.use(bodyParser.urlencoded({
         extended: true
@@ -50,10 +52,6 @@ module.exports = function(db) {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    app.use(function (req, res, next) {
-       console.log(req.session);
-       next();
-    });
 
     require('../app/routes/index.server.routes.js')(app);
     require('../app/routes/users.server.routes.js')(app);

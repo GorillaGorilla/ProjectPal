@@ -29,7 +29,7 @@ exports.list = function(req, res, next){
 };
 
 exports.read = function(req, res){
-    console.log("userBy Id req.targetUser " + req.targetUser);
+    // console.log("userBy Id req.targetUser " + req.targetUser);
     res.json(req.targetUser);
 };
 
@@ -39,13 +39,11 @@ exports.userByID = function (req, res, next, id) {
     //console.log("userByID: " + id);
     //console.log("userById req.body before: " + JSON.stringify(req.body));
 
-    console.log('$$$', id);
     User.findOne({_id: id}, function(err, user){
         if (err) {
             return next(err);
         } else {
             req.targetUser = user;
-            console.log('$$$', req.targetUser);
 
             next();
         }
@@ -158,7 +156,7 @@ exports.signout = function(req, res) {
 };
 
 exports.updateLastSignin = function(req, res, next){
-    console.log("update signing called")
+    console.log("update signing called");
     var date = new Date();
     User.findByIdAndUpdate(req.targetUser.id, {lastLogin: date.now()}, function(err, user){
         next();
@@ -166,7 +164,7 @@ exports.updateLastSignin = function(req, res, next){
 };
 
 exports.requiresLogin = function(req, res, next) {
-    console.log('****', req.session, req.user, req.targetUser);
+    // console.log('****', req.session, req.user, req.targetUser);
     if (!req.isAuthenticated()) {
         return res.status(401).send({
             message: 'User is not logged in'

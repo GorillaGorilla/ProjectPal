@@ -4,7 +4,8 @@
 'use strict';
 var mongoose = require("mongoose"),
     Interaction = mongoose.model('Interaction'),
-    Utils = require('../controllers/utils2');
+    Utils = require('../controllers/utils2'),
+    Mailer = require('../controllers/emailfunctions');
 
 
 
@@ -25,7 +26,7 @@ exports.create = function(req, res) {
                 .populate('instigator', 'username firstName lastName fullName email')
                 .exec(function(err, interaction) {
                     if (err){ return next(err)};
-                    Utils.sendMail(interaction);
+                    Mailer.sendMail(interaction);
                     res.json(interaction);
                 });
 
