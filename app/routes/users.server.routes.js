@@ -28,7 +28,7 @@ module.exports = function(app) {
     //app.route('/api/friends/:friendId')
     app.route('/signup')
         .get(users.renderSignup)
-        .post(users.signup);
+        .post(users.signup );
 
     app.route('/signin')
         .get(users.renderSignin)

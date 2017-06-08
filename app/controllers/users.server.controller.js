@@ -28,6 +28,20 @@ exports.list = function(req, res, next){
     });
 };
 
+exports.debugList = function(req, res, next){
+    User.find({}, function(err, users) {
+        if (err) {
+            return next(err);
+        }else {
+            console.log('--- Test list');
+            users.forEach(function(user) {
+                console.log("user: " + user);
+            });
+            next();
+        }
+    });
+};
+
 exports.read = function(req, res){
     // console.log("userBy Id req.targetUser " + req.targetUser);
     res.json(req.targetUser);
@@ -36,7 +50,7 @@ exports.read = function(req, res){
 exports.userByID = function (req, res, next, id) {
     //req.targetUser contains the current;ly logged in user, req.body contains the request contents (also a user).
     //this function finds the user by the url id and replaced req.targetUser with this. req.body doesn't change.
-    //console.log("userByID: " + id);
+    console.log("userByID: " + id);
     //console.log("userById req.body before: " + JSON.stringify(req.body));
 
     User.findOne({_id: id}, function(err, user){
@@ -65,14 +79,16 @@ exports.add = function (req, res, next){
             res.json(user);
         }
     });
-}
+};
 
 
 exports.update = function(req, res, next){
+    // console.log("update called", !req.targetUser);
     delete req.body.$promise;
     delete req.body.$resolved; // because property was breaking mongoose
     User.findByIdAndUpdate(req.targetUser.id, req.body, function(err, user){
         if (err) {
+            console.log('update err', err);
             return next(err);
         } else {
             res.json(user);
@@ -111,7 +127,7 @@ var getErrorMessage = function(err) {
 };
 
 exports.renderSignin = function(req, res, next) {
-    if (!req.targetUser) {
+    if (!req.user) {
         res.render('signin', {
             title: 'Sign-in Form',
             messages: req.flash('error') || req.flash('info')
@@ -121,7 +137,7 @@ exports.renderSignin = function(req, res, next) {
     }
 };
 exports.renderSignup = function(req, res, next) {
-    if (!req.targetUser) {
+    if (!req.user) {
         res.render('signup', {
             title: 'Sign-up Form',
             messages: req.flash('error')
@@ -131,22 +147,29 @@ exports.renderSignup = function(req, res, next) {
     }
 };
 exports.signup = function(req, res, next) {
-    if (!req.targetUser) {
+    // console.log('signup called' , !req.user);
+    if (true) {
         var user = new User(req.body);
         var message = null;
         user.provider = 'local';
         user.save(function(err) {
             if (err) {
+                console.log("signup save err", err);
                 var message = getErrorMessage(err);
                 req.flash('error', message);
                 return res.redirect('/signup');
             }
             req.login(user, function(err) {
-                if (err) return next(err);
+                if (err){
+                    console.log("signup save err", err);
+                    return next(err);
+                }
+                // console.log('signup success redirecting');
                 return res.redirect('/');
             });
         });
     } else {
+        // console.log('signup user exists redirecting');
         return res.redirect('/');
     }
 };

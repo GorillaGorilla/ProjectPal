@@ -58,24 +58,27 @@ describe('Friends Controller Unit Tests:', function() {
             user2.pendingFriends.push(user.id);
             var route = '/api/users/' + user2.id;
             delete user2.password;
-                agent.put(route)
-                .send(user2)
-                .set('Accept','application/json')
-                .expect(200)
-                .end(function(err,res){
-                    if (err){console.log("add friend err: " + err);}
-                    //console.log("add friend res.body" + JSON.stringify(res.body));
-                    should.not.exist(err);
-                    res.body.should.be.an.Object.and.have.property('username', user2.username);
-                    res.body.pendingFriends.should.be.an.Array.and.have.lengthOf(1);
+            agent.post('/signin')
+                .send({"username": user.username, "password": user.password})
+                .end(function(err, res){
+                    agent.put(route)
+                        .send(user2)
+                        .set('Accept','application/json')
+                        .expect(200)
+                        .end(function(err,res){
+                            if (err){console.log("add friend err: " + err);}
+                            //console.log("add friend res.body" + JSON.stringify(res.body));
+                            should.not.exist(err);
+                            res.body.should.be.an.Object.and.have.property('username', user2.username);
+                            res.body.pendingFriends.should.be.an.Array.and.have.lengthOf(1);
 
-                    User.findOne({_id: user2.id}).exec(function(err,user){
-                        user.pendingFriends.should.be.an.Array.and.have.lengthOf(1);
-                        done();
-                    });
-
-
+                            User.findOne({_id: user2.id}).exec(function(err,user){
+                                user.pendingFriends.should.be.an.Array.and.have.lengthOf(1);
+                                done();
+                            });
+                        });
                 });
+
         });
     });
 

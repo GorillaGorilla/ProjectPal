@@ -12,9 +12,8 @@ var config = require('./config'),
     MongoStore = require('connect-mongo')(session),
     flash = require('connect-flash'),
     methodOverride = require('method-override'),
-    passport = require('passport')
-    // ,
-    // middleware = require("./transportsecurity")
+    passport = require('passport'),
+    transport = require("./transportsecurity")
     ;
 
 module.exports = function(db) {
@@ -34,7 +33,7 @@ module.exports = function(db) {
         app.use(morgan('dev'));
     }else if (process.env.NODE_ENV === 'production') {
         app.use(compress());
-        app.use(requireHTTPS);
+        app.use(transport.httpsEnforce);
     }
     app.use(bodyParser.urlencoded({
         extended: true
